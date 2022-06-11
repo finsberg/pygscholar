@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 __author__ = "Henrik Finsberg (henriknf@simula.no), 2017--2022"
 __maintainer__ = "Henrik Finsberg"
 __email__ = "henriknf@simula.no"

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import datetime
 from functools import reduce
+from typing import List
 from typing import Sequence
 
 from pydantic import BaseModel
@@ -31,7 +32,7 @@ def topk_cited(publications: Sequence[Publication], k: int):
 def publications_not_older_than(
     publications: Sequence[Publication],
     age: int,
-) -> list[Publication]:
+) -> List[Publication]:
     pubs = []
     for pub in publications:
         try:
@@ -44,7 +45,7 @@ def publications_not_older_than(
 
 class FullPublicationBib(BaseModel):
     title: str
-    author: list[str]
+    author: List[str]
     abstract: str = ""
     journal: str = ""
     citation: str

@@ -1,4 +1,5 @@
-from __future__ import annotations
+from typing import List
+from typing import Tuple
 
 from pydantic import BaseModel
 from structlog import get_logger
@@ -14,30 +15,30 @@ logger = get_logger()
 class Author(BaseModel):
     name: str
     scholar_id: str = ""
-    publications: tuple[Publication, ...] = ()
+    publications: Tuple[Publication, ...] = ()
 
     @property
     def most_cited(self):
         return most_cited(self.publications)
 
-    def topk_cited(self, k: int) -> list[Publication]:
+    def topk_cited(self, k: int) -> List[Publication]:
         return topk_cited(self.publications, k=k)
 
     @property
     def num_citations(self) -> int:
         return sum(pub.num_citations for pub in self.publications)
 
-    def publications_not_older_than(self, age: int) -> list[Publication]:
+    def publications_not_older_than(self, age: int) -> List[Publication]:
         return publications_not_older_than(self.publications, age)
 
     def most_cited_not_older_than(self, age: int) -> Publication:
         return most_cited(self.publications_not_older_than(age))
 
-    def topk_cited_not_older_than(self, k: int, age: int) -> list[Publication]:
+    def topk_cited_not_older_than(self, k: int, age: int) -> List[Publication]:
         return topk_cited(self.publications_not_older_than(age), k=k)
 
 
-def author_pub_diff(new_author: Author, old_author: Author) -> list[Publication]:
+def author_pub_diff(new_author: Author, old_author: Author) -> List[Publication]:
     new_pubs = []
     for publication in new_author.publications:
         if publication not in old_author.publications:
