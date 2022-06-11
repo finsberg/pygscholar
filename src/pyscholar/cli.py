@@ -1,21 +1,14 @@
-__author__ = "Henrik Finsberg (henriknf@simula.no), 2017--2022"
-__maintainer__ = "Henrik Finsberg"
-__email__ = "henriknf@simula.no"
-__program_name__ = "pyscolar"
-__license__ = "MIT"
-from pathlib import Path
-
 import os
-
+from pathlib import Path
 
 import typer
 from rich.console import Console
 from rich.table import Table
 
+from . import utils
 
 # from . import Department
 # from . import scholar_api
-from . import utils
 
 DEFAULT_CACHE_DIR = os.getenv(
     "PYSCHOLAR_CACHE_DIR",
@@ -27,7 +20,7 @@ app = typer.Typer()
 def version_callback(show_version: bool):
     """Prints version information."""
     if show_version:
-        from . import __version__
+        from . import __version__, __program_name__
 
         typer.echo(f"{__program_name__} {__version__}")
         raise typer.Exit()
@@ -36,6 +29,8 @@ def version_callback(show_version: bool):
 def license_callback(show_license: bool):
     """Prints license information."""
     if show_license:
+        from . import __license__
+
         typer.echo(f"{__license__}")
         raise typer.Exit()
 
