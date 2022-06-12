@@ -10,6 +10,14 @@ class PublicationBibFactory(ModelFactory):
     __model__ = pyscholar.publication.PublicationBib
 
 
+class FullPublicationFactory(ModelFactory):
+    __model__ = pyscholar.FullPublication
+
+
+class FullPublicationBibFactory(ModelFactory):
+    __model__ = pyscholar.publication.FullPublicationBib
+
+
 class AuthorFactory(ModelFactory):
     __model__ = pyscholar.Author
 

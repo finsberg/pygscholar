@@ -1,10 +1,17 @@
+import difflib
 import os
 from pathlib import Path
+from typing import List
+from typing import Optional
+from typing import Protocol
 
 import typer
+from pyscholar.publication import Publication
 from rich.console import Console
 from rich.table import Table
+from scholarly import MaxTriesExceededException
 
+from . import scholar_api
 from . import utils
 
 # from . import Department
@@ -75,16 +82,27 @@ def list_authors(cache_dir: str = DEFAULT_CACHE_DIR):
 
 
 @app.command(help="Add new author")
-def add_author(name: str, scholar_id: str, cache_dir: str = DEFAULT_CACHE_DIR):
+def add_author(name: str, scholar_id: str = "", cache_dir: str = DEFAULT_CACHE_DIR):
     authors_file = Path(cache_dir).joinpath("authors.json")
     authors = utils.load_json(authors_file)
 
     if name in authors:
         typer.echo(f"Author with name {name} already exist in database", err=True)
         raise typer.Exit(101)
-    if scholar_id in authors.values():
+    if scholar_id != "" and scholar_id in authors.values():
         typer.echo("There is already an author with the provided scholar id", err=True)
         raise typer.Exit(102)
+
+    try:
+        author = scholar_api.get_author(name, scholar_id=scholar_id, fill=False)
+    except MaxTriesExceededException:
+        typer.echo("Unable to find author online...")
+    else:
+        name = author.name
+
+        if scholar_id == "":
+            scholar_id = author.scholar_id
+
     authors[name] = scholar_id
     utils.dump_json(authors, authors_file)
     typer.echo(
@@ -92,72 +110,120 @@ def add_author(name: str, scholar_id: str, cache_dir: str = DEFAULT_CACHE_DIR):
     )
 
 
-# def compute_todays_impact(history_file, pubs_file, people):
+@app.command(help="Remove author")
+def remove_author(name: str, cache_dir: str = DEFAULT_CACHE_DIR):
+    authors_file = Path(cache_dir).joinpath("authors.json")
+    authors = utils.load_json(authors_file)
+    if name not in authors:
+        closest_name = difflib.get_close_matches(name, authors.keys())[0]
+        typer.echo(
+            f"Could not find author with name '{name}'. Did you mean '{closest_name}'?",
+            err=True,
+        )
+        raise typer.Exit(103)
 
-#     # breakpoint()
-#     old_pubs = load_json(pubs_file)
-#     old_dep: Optional[Department] = None
-#     if old_pubs:
-#         old_dep = Department(**old_pubs)
-
-#     # Load database
-#     history = load_json(history_file)
-
-#     dep = scholar_api.extract_scholar_publications(people)
-
-#     # pubs = dep.publications
-#     aut = dep.get_author_by_name("Henrik Nicolay Finsberg")
-#     breakpoint()
-#     # aut = dep.get_author_by_name("Henrik Nicolay Finsberg")
-#     # pub = aut.most_cited()
-
-#     if old_dep is None:
-#         old_dep = dep
-
-#     dep_diff = scholar.department_diff(dep, old_dep, fill=True)
-#     #
-#     breakpoint()
-#     dump_json(dep.dict(), pubs_file)
+    authors.pop(name)
+    utils.dump_json(authors, authors_file)
+    typer.echo(f"Successfully removed author with name {name}")
 
 
-# def main_func(args):
+def print_publications(publications, sort_by_citations, add_authors, name):
+    sort_txt = "(Sorted by "
+    if sort_by_citations:
+        sort_txt += "citations)"
+    else:
+        sort_txt += "age)"
+    table = Table(title=f"Publications for {name} {sort_txt}")
+    table.add_column("Title", style="cyan")
+    if add_authors:
+        table.add_column("Authors", style="magenta")
+    table.add_column("Published year", style="green")
+    table.add_column("Number of citations", style="yellow")
+    for pub in publications:
 
-#     cache_dir = Path(args["cache_dir"]).expanduser()
-#     cache_dir.mkdir(parents=True, exist_ok=True)
+        try:
+            year = str(pub.year)
+        except ValueError:
+            year = "Unknown"
+        if add_authors:
+            full_pub = pub.fill()
+            table.add_row(pub.title, full_pub.authors, year, str(pub.num_citations))
+        else:
+            table.add_row(pub.title, year, str(pub.num_citations))
 
-#     history_file = cache_dir.joinpath("history.json")
-#     people_file = cache_dir.joinpath("people.json")
-#     pubs_file = cache_dir.joinpath("publications.json")
-
-#     # Import input data
-#     people = utils.load_json(people_file)
-
-#     if not people_file.is_file():
-#         print(f"No peoople found in {people_file}")
-#         sys.exit()
-
-#     compute_todays_impact(history_file, pubs_file, people)
-
-
-# def get_args():
-
-#     descr = "Get citations from the Computational Physiology group"
-#     parser = argparse.ArgumentParser(description=descr, add_help=True)
-
-#     parser.add_argument(
-#         "--cache-dir",
-#         action="store",
-#         dest="cache_dir",
-#         default=Path.home().joinpath(".pyscholar").as_posix(),
-#         type=str,
-#         help="Which folder to store the cached data",
-#     )
-
-#     return parser
+    console = Console()
+    console.print(table)
 
 
-# def main():
-#     parser = get_args()
-#     args = vars(parser.parse_args())
-#     print(args)
-#     main_func(args)
+class PublicationObject(Protocol):
+    def topk_cited(self, k: int) -> List[Publication]:
+        ...
+
+    def topk_age(self, k: int) -> List[Publication]:
+        ...
+
+    def topk_cited_not_older_than(self, k: int, age: int) -> List[Publication]:
+        ...
+
+    def topk_age_not_older_than(self, k: int, age: int) -> List[Publication]:
+        ...
+
+
+def extract_correct_publications(
+    obj: PublicationObject,
+    sort_by_citations: bool,
+    max_age: Optional[int],
+    n: int,
+) -> List[Publication]:
+    if sort_by_citations:
+        if max_age is None:
+            publications = obj.topk_cited(k=n)
+        else:
+            publications = obj.topk_cited_not_older_than(k=n, age=max_age)
+    else:
+        if max_age is None:
+            publications = obj.topk_age(k=n)
+        else:
+            publications = obj.topk_age_not_older_than(k=n, age=max_age)
+
+    return publications
+
+
+@app.command(help="List authors publications")
+def list_author_publications(
+    name: str,
+    n: int = 5,
+    sort_by_citations: bool = True,
+    add_authors: bool = False,
+    max_age: Optional[int] = None,
+    cache_dir: str = DEFAULT_CACHE_DIR,
+):
+    authors_file = Path(cache_dir).joinpath("authors.json")
+    authors = utils.load_json(authors_file)
+    if name not in authors:
+        _name = name
+        name = difflib.get_close_matches(_name, authors.keys())[0]
+        typer.echo(
+            f"Could not find author with name '{_name}'. Will use '{name}' instead",
+        )
+
+    author = scholar_api.get_author(name=name, scholar_id=authors[name], fill=True)
+    publications = extract_correct_publications(author, sort_by_citations, max_age, n)
+    print_publications(publications, sort_by_citations, add_authors, name)
+
+
+@app.command(help="List department publications")
+def list_department_publications(
+    n: int = 5,
+    sort_by_citations: bool = True,
+    add_authors: bool = False,
+    max_age: Optional[int] = None,
+    cache_dir: str = DEFAULT_CACHE_DIR,
+):
+
+    authors_file = Path(cache_dir).joinpath("authors.json")
+    authors = utils.load_json(authors_file)
+    dep = scholar_api.extract_scholar_publications(authors)
+
+    publications = extract_correct_publications(dep, sort_by_citations, max_age, n)
+    print_publications(publications, sort_by_citations, add_authors, "department")

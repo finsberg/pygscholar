@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import datetime
 from functools import reduce
-from typing import List
 from typing import Sequence
 
 from pydantic import BaseModel
@@ -11,6 +10,19 @@ from scholarly import scholarly
 from structlog import get_logger
 
 logger = get_logger()
+
+
+def remove_duplicate_publications(
+    publications: Sequence[Publication],
+) -> tuple[Publication, ...]:
+    uniqe_publications = []
+    titles = []
+    for pub in publications:
+        if pub.title in titles:
+            continue
+        titles.append(pub.title)
+        uniqe_publications.append(pub)
+    return tuple(uniqe_publications)
 
 
 def most_cited(publications: Sequence[Publication]) -> Publication:
@@ -22,9 +34,33 @@ def most_cited(publications: Sequence[Publication]) -> Publication:
     return reduce(func, publications)
 
 
-def topk_cited(publications: Sequence[Publication], k: int):
-    sorted_publications = list(
-        reversed(sorted(publications, key=lambda p: p.num_citations)),
+def topk_cited(publications: Sequence[Publication], k: int) -> tuple[Publication, ...]:
+    sorted_publications = tuple(
+        reversed(
+            sorted(
+                remove_duplicate_publications(publications),
+                key=lambda p: p.num_citations,
+            ),
+        ),
+    )
+    return sorted_publications[:k]
+
+
+def topk_age(publications: Sequence[Publication], k: int) -> tuple[Publication, ...]:
+    publications_with_age = []
+    for pub in publications:
+        try:
+            pub.age
+        except ValueError:
+            continue
+        else:
+            publications_with_age.append(pub)
+
+    sorted_publications = tuple(
+        sorted(
+            remove_duplicate_publications(publications_with_age),
+            key=lambda p: p.age,
+        ),
     )
     return sorted_publications[:k]
 
@@ -32,7 +68,7 @@ def topk_cited(publications: Sequence[Publication], k: int):
 def publications_not_older_than(
     publications: Sequence[Publication],
     age: int,
-) -> List[Publication]:
+) -> tuple[Publication, ...]:
     pubs = []
     for pub in publications:
         try:
@@ -40,12 +76,12 @@ def publications_not_older_than(
                 pubs.append(pub)
         except ValueError:
             continue
-    return pubs
+    return tuple(remove_duplicate_publications(pubs))
 
 
 class FullPublicationBib(BaseModel):
     title: str
-    author: List[str]
+    author: str
     abstract: str = ""
     journal: str = ""
     citation: str
@@ -79,6 +115,10 @@ class FullPublication(BaseModel):
     def age(self) -> int:
         year = datetime.date.today().year
         return year - self.year
+
+    @property
+    def authors(self) -> str:
+        return self.bib.author
 
     def __hash__(self) -> int:
         return hash(self.title)
