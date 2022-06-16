@@ -1,6 +1,7 @@
 import tempfile
 from unittest import mock
 
+import factory
 import pytest
 from pyscholar.cli import app
 from scholarly import MaxTriesExceededException
@@ -108,3 +109,58 @@ def test_list_author(cache_dir):
 
     for item in [name1, name2, scholar_id1, scholar_id2]:
         assert item in result.stdout
+
+
+def test_list_author_publications_when_no_author_is_added(cache_dir):
+    author = factory.AuthorFactory.build()
+    with mock.patch("pyscholar.scholar_api.scholarly") as m:
+
+        m.search_author = lambda name: iter([author.dict()])
+        m.fill = lambda x: x
+        result = runner.invoke(
+            app,
+            [
+                "list-author-publications",
+                author.name,
+                "--cache-dir",
+                cache_dir,
+            ],
+        )
+
+    assert result.exit_code == 1
+    assert f"Unable to find name '{author.name}'. Possible options are \n" == str(
+        result.exception,
+    )
+
+
+def test_list_author_publications(cache_dir):
+    author = factory.AuthorFactory.build()
+    with mock.patch("pyscholar.scholar_api.scholarly") as m:
+
+        m.search_author = lambda name: iter([author.dict()])
+        m.fill = lambda x: x
+        runner.invoke(
+            app,
+            [
+                "add-author",
+                author.name,
+                "--cache-dir",
+                cache_dir,
+            ],
+        )
+        result = runner.invoke(
+            app,
+            [
+                "list-author-publications",
+                author.name,
+                "--cache-dir",
+                cache_dir,
+            ],
+        )
+
+    assert result.exit_code == 0
+    assert f"Publications for {author.name} (Sorted by citations)" in result.stdout
+    for pub in author.publications:
+        assert pub.title in result.stdout
+        assert str(pub.year) in result.stdout
+        assert str(pub.num_citations) in result.stdout
