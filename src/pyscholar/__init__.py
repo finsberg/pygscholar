@@ -1,3 +1,5 @@
+from importlib.metadata import metadata
+
 from . import author
 from . import department
 from . import publication
@@ -7,12 +9,6 @@ from .author import Author
 from .department import Department
 from .publication import FullPublication
 from .publication import Publication
-
-try:
-    from importlib.metadata import metadata
-except ImportError:
-    # python3.7 backport
-    from importlib_metadata import metadata  # type: ignore
 
 meta = metadata("pyscholar")
 __version__ = meta["Version"]
