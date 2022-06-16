@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import List
 from typing import Optional
 from typing import Protocol
+from typing import Sequence
 
 import typer
 from pyscholar.publication import Publication
@@ -22,6 +23,13 @@ DEFAULT_CACHE_DIR = os.getenv(
     Path.home().joinpath(".pyscholar").as_posix(),
 )
 app = typer.Typer()
+
+
+def check_cache_dir_and_create(cache_dir: str) -> None:
+    cachedir = Path(cache_dir)
+    if not cachedir.is_dir():
+        typer.echo(f"Cache dir {cachedir} does not exist. Creating...")
+        cachedir.mkdir(parents=True)
 
 
 def version_callback(show_version: bool):
@@ -83,6 +91,7 @@ def list_authors(cache_dir: str = DEFAULT_CACHE_DIR):
 
 @app.command(help="Add new author")
 def add_author(name: str, scholar_id: str = "", cache_dir: str = DEFAULT_CACHE_DIR):
+    check_cache_dir_and_create(cache_dir)
     authors_file = Path(cache_dir).joinpath("authors.json")
     authors = utils.load_json(authors_file)
 
@@ -110,12 +119,24 @@ def add_author(name: str, scholar_id: str = "", cache_dir: str = DEFAULT_CACHE_D
     )
 
 
+def get_closest_name(name: str, names: Sequence[str]):
+    try:
+        closest_name = difflib.get_close_matches(name, names)[0]
+    except IndexError as e:
+        all_names = "\n".join(names)
+
+        raise ValueError(
+            f"Unable to find name '{name}'. Possible options are \n{all_names}",
+        ) from e
+    return closest_name
+
+
 @app.command(help="Remove author")
 def remove_author(name: str, cache_dir: str = DEFAULT_CACHE_DIR):
     authors_file = Path(cache_dir).joinpath("authors.json")
     authors = utils.load_json(authors_file)
     if name not in authors:
-        closest_name = difflib.get_close_matches(name, authors.keys())[0]
+        closest_name = get_closest_name(name, authors.keys())
         typer.echo(
             f"Could not find author with name '{name}'. Did you mean '{closest_name}'?",
             err=True,
@@ -202,7 +223,7 @@ def list_author_publications(
     authors = utils.load_json(authors_file)
     if name not in authors:
         _name = name
-        name = difflib.get_close_matches(_name, authors.keys())[0]
+        name = get_closest_name(name, authors.keys())
         typer.echo(
             f"Could not find author with name '{_name}'. Will use '{name}' instead",
         )
