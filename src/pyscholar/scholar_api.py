@@ -62,7 +62,7 @@ def _get_publications(args):
     return name, scholar_id, publications
 
 
-def extract_scholar_publications(people):
+def extract_scholar_publications(people: Dict[str, str]) -> Department:
 
     people_with_scholar_id = {
         name: scholar_id for name, scholar_id in people.items() if scholar_id != ""

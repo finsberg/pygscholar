@@ -7,6 +7,7 @@ from typing import Protocol
 from typing import Sequence
 
 import typer
+from pyscholar import department
 from pyscholar.publication import Publication
 from rich.console import Console
 from rich.table import Table
@@ -248,3 +249,20 @@ def list_department_publications(
 
     publications = extract_correct_publications(dep, sort_by_citations, max_age, n)
     print_publications(publications, sort_by_citations, add_authors, "department")
+
+
+@app.command(help="List new publications")
+def list_new_publications(overwrite: bool = True, cache_dir: str = DEFAULT_CACHE_DIR):
+    authors_file = Path(cache_dir).joinpath("authors.json")
+    authors = utils.load_json(authors_file)
+    dep = scholar_api.extract_scholar_publications(authors)
+
+    publications_file = Path(cache_dir).joinpath("publications.json")
+    publications = utils.load_json(publications_file)
+    old_dep = department.Department(**publications)
+
+    diff_dep = department.department_diff(dep, old_dep, fill=False, only_new=True)
+
+    print(diff_dep)
+    if 0:
+        utils.dump_json(dep.dict(), publications_file)

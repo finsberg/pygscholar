@@ -46,9 +46,19 @@ class Author(BaseModel):
         return topk_age(self.publications_not_older_than(age), k=k)
 
 
-def author_pub_diff(new_author: Author, old_author: Author) -> List[Publication]:
+def author_pub_diff(
+    new_author: Author,
+    old_author: Author,
+    only_new: bool = False,
+) -> List[Publication]:
     new_pubs = []
-    for publication in new_author.publications:
-        if publication not in old_author.publications:
+    old_author_publications = {p.title.lower().strip() for p in old_author.publications}
+    if only_new:
+        new_author_publications = new_author.publications_not_older_than(0)
+    else:
+        new_author_publications = new_author.publications
+    # We only need to check new publications
+    for publication in new_author_publications:
+        if publication.title.lower().strip() not in old_author_publications:
             new_pubs.append(publication)
     return new_pubs

@@ -69,7 +69,8 @@ class Department(BaseModel):
 def department_diff(
     new_dep: Department,
     old_dep: Department,
-    fill: bool = True,
+    fill: bool = False,
+    only_new: bool = False,
 ) -> Dict[str, Union[Publication, FullPublication]]:
     # FIXME: Add overload
     author_names = new_dep.names.intersection(old_dep.names)
@@ -78,7 +79,7 @@ def department_diff(
     for name in author_names:
         new_author = new_dep.get_author_by_name(name)
         old_author = old_dep.get_author_by_name(name)
-        all_pubs.extend(author_pub_diff(new_author, old_author))
+        all_pubs.extend(author_pub_diff(new_author, old_author, only_new=only_new))
 
     new_pubs = {p.title: p for p in all_pubs}
     if fill:
