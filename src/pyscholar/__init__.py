@@ -10,7 +10,7 @@ from .department import Department
 from .publication import FullPublication
 from .publication import Publication
 
-meta = metadata("pyscholar")
+meta = metadata("pygscholar")
 __version__ = meta["Version"]
 __author__ = meta["Author"]
 __license__ = meta["License"]
