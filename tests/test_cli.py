@@ -1,9 +1,11 @@
 import tempfile
+from pathlib import Path
 from unittest import mock
 
 import factory
+import pygscholar
 import pytest
-from pyscholar.cli import app
+from pygscholar.cli import app
 from scholarly import MaxTriesExceededException
 from typer.testing import CliRunner
 
@@ -20,7 +22,7 @@ def cache_dir():
 def test_add_author_simple(cache_dir):
     name = "John Snow"
     scholar_id = "12345"
-    with mock.patch("pyscholar.scholar_api.get_author") as m:
+    with mock.patch("pygscholar.scholar_api.get_author") as m:
         m.side_effect = MaxTriesExceededException
         result = runner.invoke(
             app,
@@ -37,7 +39,7 @@ def test_add_author_simple(cache_dir):
 def test_add_author_with_name_that_already_exist(cache_dir):
     name = "John Snow"
     scholar_id = "12345"
-    with mock.patch("pyscholar.scholar_api.get_author") as m:
+    with mock.patch("pygscholar.scholar_api.get_author") as m:
         m.side_effect = MaxTriesExceededException
         runner.invoke(
             app,
@@ -54,7 +56,7 @@ def test_add_author_with_name_that_already_exist(cache_dir):
 def test_add_author_with_scholar_id_that_already_exist(cache_dir):
     name = "John Snow"
     scholar_id = "12345"
-    with mock.patch("pyscholar.scholar_api.get_author") as m:
+    with mock.patch("pygscholar.scholar_api.get_author") as m:
         m.side_effect = MaxTriesExceededException
         runner.invoke(
             app,
@@ -80,7 +82,7 @@ def test_list_author(cache_dir):
     scholar_id1 = "12345"
     name2 = "John von Neumann"
     scholar_id2 = "42"
-    with mock.patch("pyscholar.scholar_api.get_author") as m:
+    with mock.patch("pygscholar.scholar_api.get_author") as m:
         m.side_effect = MaxTriesExceededException
         runner.invoke(
             app,
@@ -113,7 +115,7 @@ def test_list_author(cache_dir):
 
 def test_list_author_publications_when_no_author_is_added(cache_dir):
     author = factory.AuthorFactory.build()
-    with mock.patch("pyscholar.scholar_api.scholarly") as m:
+    with mock.patch("pygscholar.scholar_api.scholarly") as m:
 
         m.search_author = lambda name: iter([author.dict()])
         m.fill = lambda x: x
@@ -135,7 +137,7 @@ def test_list_author_publications_when_no_author_is_added(cache_dir):
 
 def test_list_author_publications(cache_dir):
     author = factory.AuthorFactory.build()
-    with mock.patch("pyscholar.scholar_api.scholarly") as m:
+    with mock.patch("pygscholar.scholar_api.scholarly") as m:
 
         m.search_author = lambda name: iter([author.dict()])
         m.fill = lambda x: x
@@ -164,3 +166,39 @@ def test_list_author_publications(cache_dir):
         assert pub.title in result.stdout
         assert str(pub.year) in result.stdout
         assert str(pub.num_citations) in result.stdout
+
+
+def test_list_dep_new_publications(cache_dir):
+    old_author = factory.AuthorFactory.build()
+
+    authors_file = Path(cache_dir).joinpath("authors.json")
+    pygscholar.utils.dump_json({old_author.name: old_author.scholar_id}, authors_file)
+
+    dep = pygscholar.Department(authors=(old_author,))
+    publications_file = Path(cache_dir).joinpath("publications.json")
+    pygscholar.utils.dump_json(dep.dict(), publications_file)
+
+    # Create a new publication
+    new_pub = factory.PublicationFactory.build()
+
+    author_dict = old_author.dict()
+    author_dict["publications"] = (author_dict["publications"][0], new_pub.dict())
+    new_author = pygscholar.Author(**author_dict)
+
+    with mock.patch("pygscholar.scholar_api.scholarly") as m:
+
+        m.search_author = lambda name: iter([new_author.dict()])
+        m.fill = lambda x: x
+        result = runner.invoke(
+            app,
+            [
+                "list-new-dep-publications",
+                "--no-add-authors",
+                "--cache-dir",
+                cache_dir,
+            ],
+        )
+
+    assert result.exit_code == 0
+    assert "New publications" in result.stdout
+    assert new_pub.title in result.stdout

@@ -3,7 +3,7 @@
 [![codecov](https://codecov.io/gh/finsberg/pyscholar/branch/main/graph/badge.svg?token=IUZ9HMIBFA)](https://codecov.io/gh/finsberg/pyscholar)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-# PyScholar
+# PyGScholar
 
 Tool for working extracting statistics from Google scholar built upon [`scholarly`](https://scholarly.readthedocs.io)
 
@@ -11,7 +11,10 @@ Imagine you have a department full of researchers and you want to keep track of 
 
 
 ## Install
-TODO: Add to pypi
+Install with pip
+```
+python -m pip install pygscholar
+```
 
 ## Documentation
 TODO: Setup gh pages with Sphinx

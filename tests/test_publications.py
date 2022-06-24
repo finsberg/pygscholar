@@ -3,7 +3,7 @@ import itertools
 import random
 
 import factory
-import pyscholar
+import pygscholar
 import pytest
 
 
@@ -15,7 +15,7 @@ def test_most_cited(seed):
     pub3 = factory.PublicationFactory.build(num_citations=0)
     pubs = [pub1, pub2, pub3]
     random.shuffle(pubs)
-    pub = pyscholar.publication.most_cited(pubs)
+    pub = pygscholar.publication.most_cited(pubs)
     assert pub == pub1
 
 
@@ -27,7 +27,7 @@ def test_topk_cited(seed, k):
     pub3 = factory.PublicationFactory.build(num_citations=0)
     pubs = [pub1, pub2, pub3]
     random.shuffle(pubs)
-    lst = pyscholar.publication.topk_cited([pub1, pub2, pub3], k=k)
+    lst = pygscholar.publication.topk_cited([pub1, pub2, pub3], k=k)
 
     assert len(lst) == min(k, len(pubs))
     if k >= 1:
@@ -53,7 +53,7 @@ def test_topk_age(seed, k):
     )
     pubs = [pub1, pub2, pub3]
     random.shuffle(pubs)
-    lst = pyscholar.publication.topk_age([pub1, pub2, pub3], k=k)
+    lst = pygscholar.publication.topk_age([pub1, pub2, pub3], k=k)
     assert len(lst) == min(k, 2)  # pub3 should never be included
     if k >= 1:
         assert lst[0] == pub1
@@ -109,7 +109,7 @@ def test_publications_not_older_than():
         bib=factory.PublicationBibFactory.build(pub_year=-1),
     )
     pubs = [pub1, pub2, pub3]
-    lst = pyscholar.publication.publications_not_older_than(pubs, age=1)
+    lst = pygscholar.publication.publications_not_older_than(pubs, age=1)
 
     assert len(lst) == 1
     assert lst[0] == pub1

@@ -1,15 +1,15 @@
 from unittest import mock
 
 import factory
-import pyscholar
+import pygscholar
 
 
 def test_get_author():
     author = factory.AuthorFactory.build()
 
-    with mock.patch("pyscholar.scholar_api.scholarly.search_author") as m:
+    with mock.patch("pygscholar.scholar_api.scholarly.search_author") as m:
         m.return_value = iter([author.dict()])
-        a = pyscholar.scholar_api.get_author(author.name, fill=False)
+        a = pygscholar.scholar_api.get_author(author.name, fill=False)
 
     assert a == author
 
@@ -19,9 +19,9 @@ def test_get_author_with_scholar_id():
     author1 = factory.AuthorFactory.build(name="John Snow")
     author2 = factory.AuthorFactory.build(name="John Snow")
 
-    with mock.patch("pyscholar.scholar_api.scholarly.search_author") as m:
+    with mock.patch("pygscholar.scholar_api.scholarly.search_author") as m:
         m.return_value = iter([author1.dict(), author2.dict()])
-        a = pyscholar.scholar_api.get_author(
+        a = pygscholar.scholar_api.get_author(
             author1.name,
             scholar_id=author2.scholar_id,
             fill=False,
@@ -39,18 +39,18 @@ def test_extract_scholar_publications():
     author_dict = {author.name: author.dict() for author in author_list}
     people = {author.name: author.scholar_id for author in author_list}
 
-    with mock.patch("pyscholar.scholar_api.scholarly") as m:
+    with mock.patch("pygscholar.scholar_api.scholarly") as m:
         m.search_author = lambda name: iter([author_dict[name]])
         m.fill = lambda x: x
-        dep = pyscholar.scholar_api.extract_scholar_publications(people)
+        dep = pygscholar.scholar_api.extract_scholar_publications(people)
 
     assert dep.authors == author_list
 
 
 def test_find_publication():
     pub = factory.FullPublicationFactory.build()
-    with mock.patch("pyscholar.scholar_api.scholarly") as m:
+    with mock.patch("pygscholar.scholar_api.scholarly") as m:
         m.search_pubs = lambda title: iter([pub.dict()])
         m.fill = lambda x: x
-        p = pyscholar.scholar_api.find_publicaton(pub.title)
+        p = pygscholar.scholar_api.find_publicaton(pub.title)
     assert p == pub

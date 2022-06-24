@@ -7,17 +7,14 @@ from typing import Protocol
 from typing import Sequence
 
 import typer
-from pyscholar import department
-from pyscholar.publication import Publication
 from rich.console import Console
 from rich.table import Table
 from scholarly import MaxTriesExceededException
 
+from . import department
 from . import scholar_api
 from . import utils
-
-# from . import Department
-# from . import scholar_api
+from .publication import Publication
 
 DEFAULT_CACHE_DIR = os.getenv(
     "PYSCHOLAR_CACHE_DIR",
@@ -251,8 +248,13 @@ def list_department_publications(
     print_publications(publications, sort_by_citations, add_authors, "department")
 
 
-@app.command(help="List new publications")
-def list_new_publications(overwrite: bool = True, cache_dir: str = DEFAULT_CACHE_DIR):
+@app.command(help="List new publications for the department")
+def list_new_dep_publications(
+    overwrite: bool = False,
+    add_authors: bool = True,
+    cache_dir: str = DEFAULT_CACHE_DIR,
+):
+
     authors_file = Path(cache_dir).joinpath("authors.json")
     authors = utils.load_json(authors_file)
     dep = scholar_api.extract_scholar_publications(authors)
@@ -263,6 +265,21 @@ def list_new_publications(overwrite: bool = True, cache_dir: str = DEFAULT_CACHE
 
     diff_dep = department.department_diff(dep, old_dep, fill=False, only_new=True)
 
-    print(diff_dep)
-    if 0:
+    table = Table(title="New publications")
+    table.add_column("Title", style="cyan")
+    if add_authors:
+        table.add_column("Authors", style="magenta")
+    table.add_column("Journal", style="green")
+    for title, pub in diff_dep.items():
+
+        if add_authors:
+            full_pub = pub.fill()
+            table.add_row(title, full_pub.authors, pub.bib.citation)
+        else:
+            table.add_row(title, pub.bib.citation)
+
+    console = Console()
+    console.print(table)
+
+    if overwrite:
         utils.dump_json(dep.dict(), publications_file)
