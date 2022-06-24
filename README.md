@@ -1,6 +1,7 @@
-[![pre-commit](https://github.com/finsberg/pyscholar/actions/workflows/pre-commit.yml/badge.svg)](https://github.com/finsberg/pyscholar/actions/workflows/pre-commit.yml)
-[![CI](https://github.com/finsberg/pyscholar/actions/workflows/main.yml/badge.svg)](https://github.com/finsberg/pyscholar/actions/workflows/main.yml)
-[![codecov](https://codecov.io/gh/finsberg/pyscholar/branch/main/graph/badge.svg?token=IUZ9HMIBFA)](https://codecov.io/gh/finsberg/pyscholar)
+[![pre-commit](https://github.com/finsberg/pygscholar/actions/workflows/pre-commit.yml/badge.svg)](https://github.com/finsberg/pygscholar/actions/workflows/pre-commit.yml)
+[![PyPI version](https://badge.fury.io/py/pygscholar.svg)](https://badge.fury.io/py/pygscholar)
+[![CI](https://github.com/finsberg/pygscholar/actions/workflows/main.yml/badge.svg)](https://github.com/finsberg/pygscholar/actions/workflows/main.yml)
+[![codecov](https://codecov.io/gh/finsberg/pygscholar/branch/main/graph/badge.svg?token=IUZ9HMIBFA)](https://codecov.io/gh/finsberg/pygscholar)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 # PyGScholar
