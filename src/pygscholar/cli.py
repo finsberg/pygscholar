@@ -87,6 +87,28 @@ def list_authors(cache_dir: str = DEFAULT_CACHE_DIR):
     console.print(table)
 
 
+@app.command(help="Search for authors")
+def search_author(name: str):
+    from scholarly import scholarly
+
+    query = scholarly.search_author(name)
+
+    table = Table(title=f"Search results for author '{name}'")
+    table.add_column("Name", style="cyan")
+    table.add_column("Scholar ID", style="magenta")
+    table.add_column("Affiliation", style="blue")
+    table.add_column("Cited by", style="yellow")
+    for item in query:
+        table.add_row(
+            item["name"],
+            item["scholar_id"],
+            item.get("affiliation", ""),
+            str(item.get("citedby", 0)),
+        )
+    console = Console()
+    console.print(table)
+
+
 @app.command(help="Add new author")
 def add_author(name: str, scholar_id: str = "", cache_dir: str = DEFAULT_CACHE_DIR):
     check_cache_dir_and_create(cache_dir)
