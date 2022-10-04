@@ -1,0 +1,9 @@
+format: jb-book
+root: index
+
+chapters:
+  - file: "install"
+  - file: "quickstart"
+  - file: "development"
+  - file: "CONTRIBUTING"
+  - file: "api"
