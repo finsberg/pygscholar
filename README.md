@@ -18,7 +18,6 @@ python -m pip install pygscholar
 ```
 
 ## Documentation
-TODO: Setup gh pages with Sphinx
-
+Documentation is hosted at https://finsberg.github.io/pygscholar
 ## License
 MIT
