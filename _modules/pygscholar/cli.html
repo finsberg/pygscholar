@@ -537,6 +537,21 @@ title="Open an issue"
     <span class="n">print_publications</span><span class="p">(</span><span class="n">publications</span><span class="p">,</span> <span class="n">sort_by_citations</span><span class="p">,</span> <span class="n">add_authors</span><span class="p">,</span> <span class="s2">&quot;department&quot;</span><span class="p">)</span>
 
 
+<span class="k">def</span> <span class="nf">publications_file</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s2">&quot;publications.json&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_get_new_dep</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">):</span>
+    <span class="n">authors_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s2">&quot;authors.json&quot;</span><span class="p">)</span>
+    <span class="n">authors</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">load_json</span><span class="p">(</span><span class="n">authors_file</span><span class="p">)</span>
+    <span class="n">dep</span> <span class="o">=</span> <span class="n">scholar_api</span><span class="o">.</span><span class="n">extract_scholar_publications</span><span class="p">(</span><span class="n">authors</span><span class="p">)</span>
+
+    <span class="n">publications</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">load_json</span><span class="p">(</span><span class="n">publications_file</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">))</span>
+    <span class="n">old_dep</span> <span class="o">=</span> <span class="n">department</span><span class="o">.</span><span class="n">Department</span><span class="p">(</span><span class="o">**</span><span class="n">publications</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">dep</span><span class="p">,</span> <span class="n">department</span><span class="o">.</span><span class="n">department_diff</span><span class="p">(</span><span class="n">dep</span><span class="p">,</span> <span class="n">old_dep</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">only_new</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+
 <span class="nd">@app</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="n">help</span><span class="o">=</span><span class="s2">&quot;List new publications for the department&quot;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">list_new_dep_publications</span><span class="p">(</span>
     <span class="n">overwrite</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -544,16 +559,7 @@ title="Open an issue"
     <span class="n">cache_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">DEFAULT_CACHE_DIR</span><span class="p">,</span>
 <span class="p">):</span>
 
-    <span class="n">authors_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s2">&quot;authors.json&quot;</span><span class="p">)</span>
-    <span class="n">authors</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">load_json</span><span class="p">(</span><span class="n">authors_file</span><span class="p">)</span>
-    <span class="n">dep</span> <span class="o">=</span> <span class="n">scholar_api</span><span class="o">.</span><span class="n">extract_scholar_publications</span><span class="p">(</span><span class="n">authors</span><span class="p">)</span>
-
-    <span class="n">publications_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s2">&quot;publications.json&quot;</span><span class="p">)</span>
-    <span class="n">publications</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">load_json</span><span class="p">(</span><span class="n">publications_file</span><span class="p">)</span>
-    <span class="n">old_dep</span> <span class="o">=</span> <span class="n">department</span><span class="o">.</span><span class="n">Department</span><span class="p">(</span><span class="o">**</span><span class="n">publications</span><span class="p">)</span>
-
-    <span class="n">diff_dep</span> <span class="o">=</span> <span class="n">department</span><span class="o">.</span><span class="n">department_diff</span><span class="p">(</span><span class="n">dep</span><span class="p">,</span> <span class="n">old_dep</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">only_new</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
+    <span class="n">dep</span><span class="p">,</span> <span class="n">diff_dep</span> <span class="o">=</span> <span class="n">_get_new_dep</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">)</span>
     <span class="n">table</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;New publications&quot;</span><span class="p">)</span>
     <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s2">&quot;Title&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;cyan&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">add_authors</span><span class="p">:</span>
@@ -571,7 +577,57 @@ title="Open an issue"
     <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">overwrite</span><span class="p">:</span>
-        <span class="n">utils</span><span class="o">.</span><span class="n">dump_json</span><span class="p">(</span><span class="n">dep</span><span class="o">.</span><span class="n">dict</span><span class="p">(),</span> <span class="n">publications_file</span><span class="p">)</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">dump_json</span><span class="p">(</span><span class="n">dep</span><span class="o">.</span><span class="n">dict</span><span class="p">(),</span> <span class="n">publications_file</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">))</span>
+
+
+<span class="nd">@app</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="n">help</span><span class="o">=</span><span class="s2">&quot;Post new publications for the department to Slack&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">post_slack_new_dep_publications</span><span class="p">(</span>
+    <span class="n">channel</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">overwrite</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">cache_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">DEFAULT_CACHE_DIR</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">slack_sdk</span> <span class="kn">import</span> <span class="n">WebClient</span>
+    <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Please install slack_sdg: &#39;pip install slack_sdk&quot;</span>
+        <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">token</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;SLACK_BOT_TOKEN&quot;</span><span class="p">]</span>
+    <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Please set the &#39;SLACK_BOT_TOKEN&#39;&quot;</span>
+        <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
+
+    <span class="n">dep</span><span class="p">,</span> <span class="n">diff_dep</span> <span class="o">=</span> <span class="n">_get_new_dep</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">)</span>
+
+    <span class="n">client</span> <span class="o">=</span> <span class="n">WebClient</span><span class="p">(</span><span class="n">token</span><span class="o">=</span><span class="n">token</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">title</span><span class="p">,</span> <span class="n">pub</span> <span class="ow">in</span> <span class="n">diff_dep</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+
+        <span class="n">full_pub</span> <span class="o">=</span> <span class="n">pub</span><span class="o">.</span><span class="n">fill</span><span class="p">()</span>
+
+        <span class="n">text</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;:tada:*New publication by ComPhy team members this week!*</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;:star::confetti_ball::star::confetti_ball:</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;*</span><span class="si">{</span><span class="n">title</span><span class="si">}</span><span class="s2">* by _</span><span class="si">{</span><span class="n">full_pub</span><span class="o">.</span><span class="n">authors</span><span class="si">}</span><span class="s2">_ &quot;</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">pub</span><span class="o">.</span><span class="n">bib</span><span class="o">.</span><span class="n">citation</span><span class="p">:</span>
+            <span class="n">text</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;published in _</span><span class="si">{</span><span class="n">pub</span><span class="o">.</span><span class="n">bib</span><span class="o">.</span><span class="n">citation</span><span class="si">}</span><span class="s2">_&quot;</span>
+
+        <span class="n">client</span><span class="o">.</span><span class="n">chat_postMessage</span><span class="p">(</span>
+            <span class="n">channel</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;#</span><span class="si">{</span><span class="n">channel</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">text</span><span class="o">=</span><span class="n">text</span><span class="p">,</span>
+            <span class="n">blocks</span><span class="o">=</span><span class="p">[</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;section&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;mrkdwn&quot;</span><span class="p">,</span> <span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="n">text</span><span class="p">},</span>
+                <span class="p">},</span>
+                <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;divider&quot;</span><span class="p">,</span> <span class="s2">&quot;block_id&quot;</span><span class="p">:</span> <span class="s2">&quot;divider1&quot;</span><span class="p">},</span>
+            <span class="p">],</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">overwrite</span><span class="p">:</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">dump_json</span><span class="p">(</span><span class="n">dep</span><span class="o">.</span><span class="n">dict</span><span class="p">(),</span> <span class="n">publications_file</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">))</span>
 </pre></div>
 
               </div>
