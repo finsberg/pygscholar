@@ -6,7 +6,7 @@ jobs:
     runs-on: ubuntu-22.04
     env:
       # Directory that will be published on github pages
-      PUBLISH_DIR: ./docs/_build/html
+      PUBLISH_DIR: ./_build/html
 
     steps:
       - uses: actions/checkout@v3
