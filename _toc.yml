@@ -1,0 +1,6 @@
+format: jb-book
+root: README
+
+chapters:
+  - file: "docs/api"
+  - file: "docs/CONTRIBUTING"
