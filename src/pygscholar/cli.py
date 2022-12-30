@@ -270,6 +270,21 @@ def list_department_publications(
     print_publications(publications, sort_by_citations, add_authors, "department")
 
 
+def publications_file(cache_dir) -> Path:
+    return Path(cache_dir).joinpath("publications.json")
+
+
+def _get_new_dep(cache_dir):
+    authors_file = Path(cache_dir).joinpath("authors.json")
+    authors = utils.load_json(authors_file)
+    dep = scholar_api.extract_scholar_publications(authors)
+
+    publications = utils.load_json(publications_file(cache_dir))
+    old_dep = department.Department(**publications)
+
+    return dep, department.department_diff(dep, old_dep, fill=False, only_new=True)
+
+
 @app.command(help="List new publications for the department")
 def list_new_dep_publications(
     overwrite: bool = False,
@@ -277,16 +292,7 @@ def list_new_dep_publications(
     cache_dir: str = DEFAULT_CACHE_DIR,
 ):
 
-    authors_file = Path(cache_dir).joinpath("authors.json")
-    authors = utils.load_json(authors_file)
-    dep = scholar_api.extract_scholar_publications(authors)
-
-    publications_file = Path(cache_dir).joinpath("publications.json")
-    publications = utils.load_json(publications_file)
-    old_dep = department.Department(**publications)
-
-    diff_dep = department.department_diff(dep, old_dep, fill=False, only_new=True)
-
+    dep, diff_dep = _get_new_dep(cache_dir)
     table = Table(title="New publications")
     table.add_column("Title", style="cyan")
     if add_authors:
@@ -304,4 +310,54 @@ def list_new_dep_publications(
     console.print(table)
 
     if overwrite:
-        utils.dump_json(dep.dict(), publications_file)
+        utils.dump_json(dep.dict(), publications_file(cache_dir))
+
+
+@app.command(help="Post new publications for the department to Slack")
+def post_slack_new_dep_publications(
+    channel: str,
+    overwrite: bool = False,
+    cache_dir: str = DEFAULT_CACHE_DIR,
+):
+    try:
+        from slack_sdk import WebClient
+    except ImportError as e:
+        msg = "Please install slack_sdg: 'pip install slack_sdk"
+        raise ImportError(msg) from e
+
+    try:
+        token = os.environ["SLACK_BOT_TOKEN"]
+    except KeyError as e:
+        msg = "Please set the 'SLACK_BOT_TOKEN'"
+        raise KeyError(msg) from e
+
+    dep, diff_dep = _get_new_dep(cache_dir)
+
+    client = WebClient(token=token)
+
+    for title, pub in diff_dep.items():
+
+        full_pub = pub.fill()
+
+        text = (
+            ":tada:*New publication by ComPhy team members this week!*\n"
+            ":star::confetti_ball::star::confetti_ball:\n"
+            f"*{title}* by _{full_pub.authors}_ "
+        )
+        if pub.bib.citation:
+            text += f"published in _{pub.bib.citation}_"
+
+        client.chat_postMessage(
+            channel=f"#{channel}",
+            text=text,
+            blocks=[
+                {
+                    "type": "section",
+                    "text": {"type": "mrkdwn", "text": text},
+                },
+                {"type": "divider", "block_id": "divider1"},
+            ],
+        )
+
+    if overwrite:
+        utils.dump_json(dep.dict(), publications_file(cache_dir))
