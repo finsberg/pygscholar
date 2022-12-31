@@ -6,7 +6,7 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 # pygcholar
 
-Tool for working extracting statistics from Google scholar built upon [`scholarly`](https://scholarly.readthedocs.io)
+Tool for extracting statistics from Google scholar built upon [`scholarly`](https://scholarly.readthedocs.io)
 
 Imagine you have a department full of researchers and you want to keep track of the most recent or most cited papers in the department, or that you simply want to track yourself, then this package might be what you need.
 
