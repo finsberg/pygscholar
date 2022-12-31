@@ -52,7 +52,7 @@ const thebe_selector_output = ".output, .cell_output"
     <script async="async" src="_static/sphinx-thebe.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="API documentation" href="docs/api.html" />
+    <link rel="next" title="Tutorial" href="docs/tutorial.html" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="docsearch:language" content="None">
     
@@ -108,6 +108,11 @@ const thebe_selector_output = ".output, .cell_output"
             </li>
         </ul>
         <ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="docs/tutorial.html">
+   Tutorial
+  </a>
+ </li>
  <li class="toctree-l1">
   <a class="reference internal" href="docs/api.html">
    API documentation
@@ -301,11 +306,6 @@ title="Print to PDF"
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#simple-example">
-   Simple example
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#contributing">
    Contributing
   </a>
@@ -337,11 +337,6 @@ title="Print to PDF"
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#install">
    Install
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#simple-example">
-   Simple example
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
@@ -388,113 +383,7 @@ title="Print to PDF"
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">pip</span> <span class="n">install</span> <span class="n">pygscholar</span>
 </pre></div>
 </div>
-<p>Once installed you should get access to the <code class="docutils literal notranslate"><span class="pre">scholar</span></code> command</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ scholar --help
-
- Usage: scholar [OPTIONS] COMMAND [ARGS]...
-
-╭─ Options ────────────────────────────────────────────────────────────────────╮
-│ --version                                            Show version            │
-│ --license                                            Show license            │
-│ --install-completion        [bash|zsh|fish|powershe  Install completion for  │
-│                             ll|pwsh]                 the specified shell.    │
-│                                                      [default: None]         │
-│ --show-completion           [bash|zsh|fish|powershe  Show completion for the │
-│                             ll|pwsh]                 specified shell, to     │
-│                                                      copy it or customize    │
-│                                                      the installation.       │
-│                                                      [default: None]         │
-│ --help                                               Show this message and   │
-│                                                      exit.                   │
-╰──────────────────────────────────────────────────────────────────────────────╯
-╭─ Commands ───────────────────────────────────────────────────────────────────╮
-│ add-author                       Add new author                              │
-│ list-author-publications         List authors publications                   │
-│ list-authors                     List all authors                            │
-│ list-department-publications     List department publications                │
-│ list-new-dep-publications        List new publications for the department    │
-│ post-slack-new-dep-publications  Post new publications for the department to │
-│                                  Slack                                       │
-│ remove-author                    Remove author                               │
-│ search-author                    Search for authors                          │
-╰──────────────────────────────────────────────────────────────────────────────╯
-</pre></div>
-</div>
-</section>
-<section id="simple-example">
-<h2>Simple example<a class="headerlink" href="#simple-example" title="Permalink to this headline">#</a></h2>
-<p>List authors</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ scholar list-authors
-       Authors
-┏━━━━━━┳━━━━━━━━━━━━┓
-┃ Name ┃ Scholar ID ┃
-┡━━━━━━╇━━━━━━━━━━━━┩
-└──────┴────────────┘
-</pre></div>
-</div>
-<p>Add author</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ scholar add-author &#39;Henrik Finsberg&#39;
-2022-12-30 21:47:29 [info     ] Get author info for Henrik Finsberg
-Successfully added author with name Henrik Nicolay Finsberg and scholar id NDPIHoEAAAAJ
-</pre></div>
-</div>
-<p>List authors again</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ scholar list-authors
-Henrik Nicolay Finsberg
-                 Authors
-┏━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┓
-┃                    Name ┃ Scholar ID   ┃
-┡━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━┩
-│ Henrik Nicolay Finsberg │ NDPIHoEAAAAJ │
-└─────────────────────────┴──────────────┘
-</pre></div>
-</div>
-<p>Get the top three most cited papers</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cholar list-author-publications &#39;Henrik Finsberg&#39; --n=3
-Could not find author with name &#39;Henrik Finsberg&#39;. Will use &#39;Henrik Nicolay Finsberg&#39; instead
-2022-12-30 21:50:21 [info     ] Get author info for Henrik Nicolay Finsberg
-         Publications for Henrik Nicolay Finsberg (Sorted by citations)
-┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━┓
-┃ Title                                 ┃ Published year ┃ Number of citations ┃
-┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━┩
-│ Efficient estimation of personalized  │ 2018           │ 33                  │
-│ biventricular mechanical function     │                │                     │
-│ employing gradient‐based optimization │                │                     │
-│ Improved computational identification │ 2020           │ 31                  │
-│ of drug response using optical        │                │                     │
-│ measurements of human stem cell       │                │                     │
-│ derived cardiomyocytes in             │                │                     │
-│ microphysiological systems            │                │                     │
-│ Estimating cardiac contraction        │ 2018           │ 23                  │
-│ through high resolution data          │                │                     │
-│ assimilation of a personalized        │                │                     │
-│ mechanical model                      │                │                     │
-└───────────────────────────────────────┴────────────────┴─────────────────────┘
-</pre></div>
-</div>
-<p>Get the top three most cited papers not older than 2 years</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ scholar list-author-publications &#39;Henrik Finsberg&#39; --n=3 --max-age=2
-Could not find author with name &#39;Henrik Finsberg&#39;. Will use &#39;Henrik Nicolay Finsberg&#39; instead
-2022-12-30 21:51:16 [info     ] Get author info for Henrik Nicolay Finsberg
-         Publications for Henrik Nicolay Finsberg (Sorted by citations)
-┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━┓
-┃ Title                                 ┃ Published year ┃ Number of citations ┃
-┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━┩
-│ Improved computational identification │ 2020           │ 31                  │
-│ of drug response using optical        │                │                     │
-│ measurements of human stem cell       │                │                     │
-│ derived cardiomyocytes in             │                │                     │
-│ microphysiological systems            │                │                     │
-│ In vitro safety “clinical trial” of   │ 2021           │ 8                   │
-│ the cardiac liability of drug         │                │                     │
-│ polytherapy                           │                │                     │
-│ Heart muscle microphysiological       │ 2021           │ 7                   │
-│ system for cardiac liability          │                │                     │
-│ prediction of repurposed COVID-19     │                │                     │
-│ therapeutics                          │                │                     │
-└───────────────────────────────────────┴────────────────┴─────────────────────┘
-</pre></div>
-</div>
+<p>Once installed you should get access to the <code class="docutils literal notranslate"><span class="pre">scholar</span></code> command. See <a class="reference internal" href="docs/tutorial.html"><span class="doc std std-doc">the tutorial</span></a> for a guide on how to use this command.</p>
 </section>
 <section id="contributing">
 <h2>Contributing<a class="headerlink" href="#contributing" title="Permalink to this headline">#</a></h2>
@@ -535,10 +424,10 @@ Could not find author with name &#39;Henrik Finsberg&#39;. Will use &#39;Henrik 
                 
     <!-- Previous / next buttons -->
 <div class='prev-next-area'>
-    <a class='right-next' id="next-link" href="docs/api.html" title="next page">
+    <a class='right-next' id="next-link" href="docs/tutorial.html" title="next page">
     <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">API documentation</p>
+        <p class="prev-next-title">Tutorial</p>
     </div>
     <i class="fas fa-angle-right"></i>
     </a>

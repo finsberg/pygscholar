@@ -1,0 +1,945 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Tutorial &#8212; pygscholar</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" href="../_static/styles/sphinx-book-theme.css?digest=5115cc725059bd94278eecd172e13a965bf8f5a9" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-thebe.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/design-style.b7bb847fb20b106c3d81b95245e65545.min.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?digest=9c920249402e914e316237a7dbc6769907cce411"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../_static/togglebutton.js"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script src="../_static/design-tabs.js"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"
+const thebe_selector = ".thebe,.cell"
+const thebe_selector_input = "pre"
+const thebe_selector_output = ".output, .cell_output"
+</script>
+    <script async="async" src="../_static/sphinx-thebe.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="API documentation" href="api.html" />
+    <link rel="prev" title="pygcholar" href="../README.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Google Analytics -->
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../index.html">
+      
+      
+      
+      <h1 class="site-logo" id="site-title">pygscholar</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search this book..." aria-label="Search this book..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../README.html">
+                    pygcholar
+                </a>
+            </li>
+        </ul>
+        <ul class="current nav bd-sidenav">
+ <li class="toctree-l1 current active">
+  <a class="current reference internal" href="#">
+   Tutorial
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="api.html">
+   API documentation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="CONTRIBUTING.html">
+   Contributing
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            Powered by <a href="https://jupyterbook.org">Jupyter Book</a>
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<div class="menu-dropdown menu-dropdown-launch-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Launch interactive content">
+      <i class="fas fa-rocket"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://mybinder.org/v2/gh/finsberg/pygscholar/gh-pages?urlpath=lab/tree/_sources/docs/tutorial.ipynb"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Launch on Binder"
+>
+  
+
+<span class="headerbtn__icon-container">
+  
+    <img src="../_static/images/logo_binder.svg">
+  </span>
+<span class="headerbtn__text-container">Binder</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+<div class="menu-dropdown menu-dropdown-repository-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Source repositories">
+      <i class="fab fa-github"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://github.com/finsberg/pygscholar"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Source repository"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="headerbtn__text-container">repository</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/finsberg/pygscholar/issues/new?title=Issue%20on%20page%20%2Fdocs/tutorial.html&body=Your%20issue%20content%20here."
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Open an issue"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="headerbtn__text-container">open issue</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+<div class="menu-dropdown menu-dropdown-download-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Download this page">
+      <i class="fas fa-download"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="../_sources/docs/tutorial.ipynb"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Download source file"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="headerbtn__text-container">.ipynb</span>
+</a>
+
+      </li>
+      
+      <li>
+        
+<button onclick="printPdf(this)"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="left"
+title="Print to PDF"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="headerbtn__text-container">.pdf</span>
+</button>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#the-help-option">
+   The help option
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#adding-an-author-to-your-database">
+   Adding an author to your database
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#listing-author-publications">
+   Listing author publications
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#listing-publications-for-the-whole-deparment">
+   Listing publications for the whole deparment
+  </a>
+ </li>
+</ul>
+
+    </nav>
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>Tutorial</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#the-help-option">
+   The help option
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#adding-an-author-to-your-database">
+   Adding an author to your database
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#listing-author-publications">
+   Listing author publications
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#listing-publications-for-the-whole-deparment">
+   Listing publications for the whole deparment
+  </a>
+ </li>
+</ul>
+
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <section class="tex2jax_ignore mathjax_ignore" id="tutorial">
+<h1>Tutorial<a class="headerlink" href="#tutorial" title="Permalink to this headline">#</a></h1>
+<p>Here we will show the basic commands for working with <code class="docutils literal notranslate"><span class="pre">pygscholar</span></code>. When you install <code class="docutils literal notranslate"><span class="pre">pygscholar</span></code> you will get access to the <code class="docutils literal notranslate"><span class="pre">scholar</span></code> command which you can use in the terminal. In this tutorial we are running the command from a notebook and therefor all commands starts with a <code class="docutils literal notranslate"><span class="pre">!</span></code>. However if you are using a terminal, then you should not use the <code class="docutils literal notranslate"><span class="pre">!</span></code> in front of the command.</p>
+<section id="the-help-option">
+<h2>The help option<a class="headerlink" href="#the-help-option" title="Permalink to this headline">#</a></h2>
+<p>See all the options you can type</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ scholar --help
+</pre></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>scholar --help
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Bold">                                                                                </span>
+<span class=" -Color -Color-Bold"> </span><span class=" -Color -Color-Bold -Color-Bold-Yellow">Usage: </span><span class=" -Color -Color-Bold">scholar [OPTIONS] COMMAND [ARGS]...                                     </span>
+<span class=" -Color -Color-Bold">                                                                                </span>
+<span class=" -Color -Color-Faint">╭─ Options ────────────────────────────────────────────────────────────────────╮</span>
+<span class=" -Color -Color-Faint">│</span> <span class=" -Color -Color-Bold -Color-Bold-Cyan">--version</span>                   <span class=" -Color -Color-Bold -Color-Bold-Yellow">                       </span>  Show version            <span class=" -Color -Color-Faint">│</span>
+<span class=" -Color -Color-Faint">│</span> <span class=" -Color -Color-Bold -Color-Bold-Cyan">--license</span>                   <span class=" -Color -Color-Bold -Color-Bold-Yellow">                       </span>  Show license            <span class=" -Color -Color-Faint">│</span>
+<span class=" -Color -Color-Faint">│</span> <span class=" -Color -Color-Bold -Color-Bold-Cyan">--install-completion</span>        <span class=" -Color -Color-Bold -Color-Bold-Faint -Color-Bold-Faint-Yellow">[</span><span class=" -Color -Color-Bold -Color-Bold-Yellow">bash</span><span class=" -Color -Color-Bold -Color-Bold-Faint -Color-Bold-Faint-Yellow">|</span><span class=" -Color -Color-Bold -Color-Bold-Yellow">zsh</span><span class=" -Color -Color-Bold -Color-Bold-Faint -Color-Bold-Faint-Yellow">|</span><span class=" -Color -Color-Bold -Color-Bold-Yellow">fish</span><span class=" -Color -Color-Bold -Color-Bold-Faint -Color-Bold-Faint-Yellow">|</span><span class=" -Color -Color-Bold -Color-Bold-Yellow">powershe</span>  Install completion for  <span class=" -Color -Color-Faint">│</span>
+<span class=" -Color -Color-Faint">│</span>                             <span class=" -Color -Color-Bold -Color-Bold-Yellow">ll</span><span class=" -Color -Color-Bold -Color-Bold-Faint -Color-Bold-Faint-Yellow">|</span><span class=" -Color -Color-Bold -Color-Bold-Yellow">pwsh</span><span class=" -Color -Color-Bold -Color-Bold-Faint -Color-Bold-Faint-Yellow">]</span><span class=" -Color -Color-Bold -Color-Bold-Yellow">               </span>  the specified shell.    <span class=" -Color -Color-Faint">│</span>
+<span class=" -Color -Color-Faint">│</span>                                                      <span class=" -Color -Color-Faint">[default: None]        </span> <span class=" -Color -Color-Faint">│</span>
+<span class=" -Color -Color-Faint">│</span> <span class=" -Color -Color-Bold -Color-Bold-Cyan">--show-completion</span>           <span class=" -Color -Color-Bold -Color-Bold-Faint -Color-Bold-Faint-Yellow">[</span><span class=" -Color -Color-Bold -Color-Bold-Yellow">bash</span><span class=" -Color -Color-Bold -Color-Bold-Faint -Color-Bold-Faint-Yellow">|</span><span class=" -Color -Color-Bold -Color-Bold-Yellow">zsh</span><span class=" -Color -Color-Bold -Color-Bold-Faint -Color-Bold-Faint-Yellow">|</span><span class=" -Color -Color-Bold -Color-Bold-Yellow">fish</span><span class=" -Color -Color-Bold -Color-Bold-Faint -Color-Bold-Faint-Yellow">|</span><span class=" -Color -Color-Bold -Color-Bold-Yellow">powershe</span>  Show completion for the <span class=" -Color -Color-Faint">│</span>
+<span class=" -Color -Color-Faint">│</span>                             <span class=" -Color -Color-Bold -Color-Bold-Yellow">ll</span><span class=" -Color -Color-Bold -Color-Bold-Faint -Color-Bold-Faint-Yellow">|</span><span class=" -Color -Color-Bold -Color-Bold-Yellow">pwsh</span><span class=" -Color -Color-Bold -Color-Bold-Faint -Color-Bold-Faint-Yellow">]</span><span class=" -Color -Color-Bold -Color-Bold-Yellow">               </span>  specified shell, to     <span class=" -Color -Color-Faint">│</span>
+<span class=" -Color -Color-Faint">│</span>                                                      copy it or customize    <span class=" -Color -Color-Faint">│</span>
+<span class=" -Color -Color-Faint">│</span>                                                      the installation.       <span class=" -Color -Color-Faint">│</span>
+<span class=" -Color -Color-Faint">│</span>                                                      <span class=" -Color -Color-Faint">[default: None]        </span> <span class=" -Color -Color-Faint">│</span>
+<span class=" -Color -Color-Faint">│</span> <span class=" -Color -Color-Bold -Color-Bold-Cyan">--help</span>                      <span class=" -Color -Color-Bold -Color-Bold-Yellow">                       </span>  Show this message and   <span class=" -Color -Color-Faint">│</span>
+<span class=" -Color -Color-Faint">│</span>                                                      exit.                   <span class=" -Color -Color-Faint">│</span>
+<span class=" -Color -Color-Faint">╰──────────────────────────────────────────────────────────────────────────────╯</span>
+<span class=" -Color -Color-Faint">╭─ Commands ───────────────────────────────────────────────────────────────────╮</span>
+<span class=" -Color -Color-Faint">│</span> <span class=" -Color -Color-Bold -Color-Bold-Cyan">add-author                      </span> Add new author                              <span class=" -Color -Color-Faint">│</span>
+<span class=" -Color -Color-Faint">│</span> <span class=" -Color -Color-Bold -Color-Bold-Cyan">list-author-publications        </span> List authors publications                   <span class=" -Color -Color-Faint">│</span>
+<span class=" -Color -Color-Faint">│</span> <span class=" -Color -Color-Bold -Color-Bold-Cyan">list-authors                    </span> List all authors                            <span class=" -Color -Color-Faint">│</span>
+<span class=" -Color -Color-Faint">│</span> <span class=" -Color -Color-Bold -Color-Bold-Cyan">list-department-publications    </span> List department publications                <span class=" -Color -Color-Faint">│</span>
+<span class=" -Color -Color-Faint">│</span> <span class=" -Color -Color-Bold -Color-Bold-Cyan">list-new-dep-publications       </span> List new publications for the department    <span class=" -Color -Color-Faint">│</span>
+<span class=" -Color -Color-Faint">│</span> <span class=" -Color -Color-Bold -Color-Bold-Cyan">post-slack-new-dep-publications </span> Post new publications for the department to <span class=" -Color -Color-Faint">│</span>
+<span class=" -Color -Color-Faint">│</span> <span class=" -Color -Color-Bold -Color-Bold-Cyan">                                </span> Slack                                       <span class=" -Color -Color-Faint">│</span>
+<span class=" -Color -Color-Faint">│</span> <span class=" -Color -Color-Bold -Color-Bold-Cyan">remove-author                   </span> Remove author                               <span class=" -Color -Color-Faint">│</span>
+<span class=" -Color -Color-Faint">│</span> <span class=" -Color -Color-Bold -Color-Bold-Cyan">search-author                   </span> Search for authors                          <span class=" -Color -Color-Faint">│</span>
+<span class=" -Color -Color-Faint">╰──────────────────────────────────────────────────────────────────────────────╯</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>This will list all the available options with a message explaining the different sub commands. For each sub-command you can also use the <code class="docutils literal notranslate"><span class="pre">--help</span></code> option, e.g</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ scholar add-author --help
+</pre></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>scholar add-author --help
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Bold">                                                                                </span>
+<span class=" -Color -Color-Bold"> </span><span class=" -Color -Color-Bold -Color-Bold-Yellow">Usage: </span><span class=" -Color -Color-Bold">scholar add-author [OPTIONS] NAME                                       </span>
+<span class=" -Color -Color-Bold">                                                                                </span>
+ Add new author                                                                 
+                                                                                
+<span class=" -Color -Color-Faint">╭─ Arguments ──────────────────────────────────────────────────────────────────╮</span>
+<span class=" -Color -Color-Faint">│</span> <span class=" -Color -Color-Red">*</span>    name      <span class=" -Color -Color-Bold -Color-Bold-Yellow">TEXT</span>  <span class=" -Color -Color-Faint">[default: None]</span> <span class=" -Color -Color-Faint -Color-Faint-Red">[required]</span>                              <span class=" -Color -Color-Faint">│</span>
+<span class=" -Color -Color-Faint">╰──────────────────────────────────────────────────────────────────────────────╯</span>
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Faint">╭─ Options ────────────────────────────────────────────────────────────────────╮</span>
+<span class=" -Color -Color-Faint">│</span> <span class=" -Color -Color-Bold -Color-Bold-Cyan">--scholar-id</span>        <span class=" -Color -Color-Bold -Color-Bold-Yellow">TEXT</span>                                                     <span class=" -Color -Color-Faint">│</span>
+<span class=" -Color -Color-Faint">│</span> <span class=" -Color -Color-Bold -Color-Bold-Cyan">--cache-dir</span>         <span class=" -Color -Color-Bold -Color-Bold-Yellow">TEXT</span>  <span class=" -Color -Color-Faint">[default: /home/runner/.pyscholar]</span>                 <span class=" -Color -Color-Faint">│</span>
+<span class=" -Color -Color-Faint">│</span> <span class=" -Color -Color-Bold -Color-Bold-Cyan">--help</span>              <span class=" -Color -Color-Bold -Color-Bold-Yellow">    </span>  Show this message and exit.                        <span class=" -Color -Color-Faint">│</span>
+<span class=" -Color -Color-Faint">╰──────────────────────────────────────────────────────────────────────────────╯</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="adding-an-author-to-your-database">
+<h2>Adding an author to your database<a class="headerlink" href="#adding-an-author-to-your-database" title="Permalink to this headline">#</a></h2>
+<p>The way <code class="docutils literal notranslate"><span class="pre">pygscholar</span></code> works is that you need to add authors to a database in order for <code class="docutils literal notranslate"><span class="pre">pygscholar</span></code> to find them. First we can try to list all the authors in our database using the command</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ scholar list-authors
+</pre></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>scholar list-authors
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>       Authors       
+┏━━━━━━┳━━━━━━━━━━━━┓
+┃<span class=" -Color -Color-Bold"> Name </span>┃<span class=" -Color -Color-Bold"> Scholar ID </span>┃
+┡━━━━━━╇━━━━━━━━━━━━┩
+└──────┴────────────┘
+</pre></div>
+</div>
+</div>
+</div>
+<p>Now we could try to add an author to the database by using the command</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ scholar add-author &lt;name of author&gt;
+</pre></div>
+</div>
+<p>e.g</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ scholar add-author &#39;Henrik Finsberg&#39;
+</pre></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>scholar add-author <span class="s1">&#39;Henrik Finsberg&#39;</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Cache dir /home/runner/.pyscholar does not exist. Creating...
+<span class=" -Color -Color-Faint">2022-12-31 08:49:40</span> [<span class=" -Color -Color-Bold -Color-Bold-Green">info     </span>] <span class=" -Color -Color-Bold">Get author info for Henrik Finsberg</span>
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Successfully added author with name Henrik Nicolay Finsberg and scholar id NDPIHoEAAAAJ
+</pre></div>
+</div>
+</div>
+</div>
+<p>You can now try to list the authors again</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>scholar list-authors
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Henrik Nicolay Finsberg
+                 Authors                  
+┏━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┓
+┃<span class=" -Color -Color-Bold">                    Name </span>┃<span class=" -Color -Color-Bold"> Scholar ID   </span>┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━┩
+│<span class=" -Color -Color-Cyan"> Henrik Nicolay Finsberg </span>│<span class=" -Color -Color-Magenta"> NDPIHoEAAAAJ </span>│
+└─────────────────────────┴──────────────┘
+</pre></div>
+</div>
+</div>
+</div>
+<p>As we can see, we didn’t type the full name (i.e Henrik Nicolay Finsberg), but the program was still able to find the author. Sometimes there are more than one person with the same name in which case you can use the <code class="docutils literal notranslate"><span class="pre">Scholar</span> <span class="pre">ID</span></code> to specify which person you mean. We can firs use the command</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ scholar search-author
+</pre></div>
+</div>
+<p>To search for an author. This would be equivalent of searching for an author at Google Scholar. Let us say that we want to add a person with surname ‘Sundnes’ that we know work at Simula Research Laboratory. We can then search for <code class="docutils literal notranslate"><span class="pre">Sundnes</span></code></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ scholar search-author &#39;Sundnes&#39;
+</pre></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>scholar search-author <span class="s1">&#39;Sundnes&#39;</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>                      Search results for author &#39;Sundnes&#39;                       
+┏━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━┓
+┃<span class=" -Color -Color-Bold"> Name                  </span>┃<span class=" -Color -Color-Bold"> Scholar ID   </span>┃<span class=" -Color -Color-Bold"> Affiliation                </span>┃<span class=" -Color -Color-Bold"> Cited by </span>┃
+┡━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━┩
+│<span class=" -Color -Color-Cyan"> Joakim Sundnes        </span>│<span class=" -Color -Color-Magenta"> YfOpQUcAAAAJ </span>│<span class=" -Color -Color-Blue"> Simula Research Laboratory </span>│<span class=" -Color -Color-Yellow"> 2467     </span>│
+│<span class=" -Color -Color-Cyan"> Anders Sundnes Løvlie </span>│<span class=" -Color -Color-Magenta"> UhP1dScAAAAJ </span>│<span class=" -Color -Color-Blue"> IT University of           </span>│<span class=" -Color -Color-Yellow"> 448      </span>│
+│<span class=" -Color -Color-Cyan">                       </span>│<span class=" -Color -Color-Magenta">              </span>│<span class=" -Color -Color-Blue"> Copenhagen                 </span>│<span class=" -Color -Color-Yellow">          </span>│
+│<span class=" -Color -Color-Cyan"> Tomas Sundnes Drønen  </span>│<span class=" -Color -Color-Magenta"> 9VMwxKAAAAAJ </span>│<span class=" -Color -Color-Blue"> VID vitenskapelige         </span>│<span class=" -Color -Color-Yellow"> 173      </span>│
+│<span class=" -Color -Color-Cyan">                       </span>│<span class=" -Color -Color-Magenta">              </span>│<span class=" -Color -Color-Blue"> høgskole                   </span>│<span class=" -Color -Color-Yellow">          </span>│
+│<span class=" -Color -Color-Cyan"> Frode Sundnes         </span>│<span class=" -Color -Color-Magenta"> 4T4561wAAAAJ </span>│<span class=" -Color -Color-Blue"> Norwegian Institute for    </span>│<span class=" -Color -Color-Yellow"> 78       </span>│
+│<span class=" -Color -Color-Cyan">                       </span>│<span class=" -Color -Color-Magenta">              </span>│<span class=" -Color -Color-Blue"> Water Research             </span>│<span class=" -Color -Color-Yellow">          </span>│
+└───────────────────────┴──────────────┴────────────────────────────┴──────────┘
+</pre></div>
+</div>
+</div>
+</div>
+<p>We see that, the person we are looking for is <code class="docutils literal notranslate"><span class="pre">Joakim</span> <span class="pre">Sundnes</span></code>, so we could go ahead an add this author, or we could use the <code class="docutils literal notranslate"><span class="pre">Scholar</span> <span class="pre">ID</span></code> as follows</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ scholar add-author &#39;Sundnes&#39; --scholar-id=YfOpQUcAAAAJ
+</pre></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>scholar add-author <span class="s1">&#39;Sundnes&#39;</span> --scholar-id<span class="o">=</span>YfOpQUcAAAAJ
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Faint">2022-12-31 08:49:48</span> [<span class=" -Color -Color-Bold -Color-Bold-Green">info     </span>] <span class=" -Color -Color-Bold">Get author info for Sundnes</span>
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Successfully added author with name Joakim Sundnes and scholar id YfOpQUcAAAAJ
+</pre></div>
+</div>
+</div>
+</div>
+<p>We can now list the authors again</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>scholar list-authors
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Henrik Nicolay Finsberg
+Joakim Sundnes
+                 Authors                  
+┏━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┓
+┃<span class=" -Color -Color-Bold">                    Name </span>┃<span class=" -Color -Color-Bold"> Scholar ID   </span>┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━┩
+│<span class=" -Color -Color-Cyan"> Henrik Nicolay Finsberg </span>│<span class=" -Color -Color-Magenta"> NDPIHoEAAAAJ </span>│
+│<span class=" -Color -Color-Cyan">          Joakim Sundnes </span>│<span class=" -Color -Color-Magenta"> YfOpQUcAAAAJ </span>│
+└─────────────────────────┴──────────────┘
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="listing-author-publications">
+<h2>Listing author publications<a class="headerlink" href="#listing-author-publications" title="Permalink to this headline">#</a></h2>
+<p>The next command we want to look at is the command</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ scholar list-author-publications
+</pre></div>
+</div>
+<p>We can take a look at the help section first</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>scholar list-author-publications --help
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Bold">                                                                                </span>
+<span class=" -Color -Color-Bold"> </span><span class=" -Color -Color-Bold -Color-Bold-Yellow">Usage: </span><span class=" -Color -Color-Bold">scholar list-author-publications [OPTIONS] NAME                         </span>
+<span class=" -Color -Color-Bold">                                                                                </span>
+ List authors publications                                                      
+                                                                                
+<span class=" -Color -Color-Faint">╭─ Arguments ──────────────────────────────────────────────────────────────────╮</span>
+<span class=" -Color -Color-Faint">│</span> <span class=" -Color -Color-Red">*</span>    name      <span class=" -Color -Color-Bold -Color-Bold-Yellow">TEXT</span>  <span class=" -Color -Color-Faint">[default: None]</span> <span class=" -Color -Color-Faint -Color-Faint-Red">[required]</span>                              <span class=" -Color -Color-Faint">│</span>
+<span class=" -Color -Color-Faint">╰──────────────────────────────────────────────────────────────────────────────╯</span>
+<span class=" -Color -Color-Faint">╭─ Options ────────────────────────────────────────────────────────────────────╮</span>
+<span class=" -Color -Color-Faint">│</span> <span class=" -Color -Color-Bold -Color-Bold-Cyan">--n</span>                                            <span class=" -Color -Color-Bold -Color-Bold-Yellow">INTEGER</span>  <span class=" -Color -Color-Faint">[default: 5]</span>         <span class=" -Color -Color-Faint">│</span>
+<span class=" -Color -Color-Faint">│</span> <span class=" -Color -Color-Bold -Color-Bold-Cyan">--sort-by-citations</span>    <span class=" -Color -Color-Bold -Color-Bold-Magenta">--no-sort-by-citati…</span>    <span class=" -Color -Color-Bold -Color-Bold-Yellow">       </span>  <span class=" -Color -Color-Faint">[default:           </span> <span class=" -Color -Color-Faint">│</span>
+<span class=" -Color -Color-Faint">│</span>                                                         <span class=" -Color -Color-Faint">sort-by-citations]  </span> <span class=" -Color -Color-Faint">│</span>
+<span class=" -Color -Color-Faint">│</span> <span class=" -Color -Color-Bold -Color-Bold-Cyan">--add-authors</span>          <span class=" -Color -Color-Bold -Color-Bold-Magenta">--no-add-authors</span>        <span class=" -Color -Color-Bold -Color-Bold-Yellow">       </span>  <span class=" -Color -Color-Faint">[default:           </span> <span class=" -Color -Color-Faint">│</span>
+<span class=" -Color -Color-Faint">│</span>                                                         <span class=" -Color -Color-Faint">no-add-authors]     </span> <span class=" -Color -Color-Faint">│</span>
+<span class=" -Color -Color-Faint">│</span> <span class=" -Color -Color-Bold -Color-Bold-Cyan">--max-age</span>                                      <span class=" -Color -Color-Bold -Color-Bold-Yellow">INTEGER</span>  <span class=" -Color -Color-Faint">[default: None]</span>      <span class=" -Color -Color-Faint">│</span>
+<span class=" -Color -Color-Faint">│</span> <span class=" -Color -Color-Bold -Color-Bold-Cyan">--cache-dir</span>                                    <span class=" -Color -Color-Bold -Color-Bold-Yellow">TEXT   </span>  <span class=" -Color -Color-Faint">[default:           </span> <span class=" -Color -Color-Faint">│</span>
+<span class=" -Color -Color-Faint">│</span>                                                         <span class=" -Color -Color-Faint">/home/runner/.pysch…</span> <span class=" -Color -Color-Faint">│</span>
+<span class=" -Color -Color-Faint">│</span> <span class=" -Color -Color-Bold -Color-Bold-Cyan">--help</span>                                         <span class=" -Color -Color-Bold -Color-Bold-Yellow">       </span>  Show this message    <span class=" -Color -Color-Faint">│</span>
+<span class=" -Color -Color-Faint">│</span>                                                         and exit.            <span class=" -Color -Color-Faint">│</span>
+<span class=" -Color -Color-Faint">╰──────────────────────────────────────────────────────────────────────────────╯</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>We see that the command takes a name, which is the name of the author. Let us try it on one of the names in the database</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>scholar list-author-publications <span class="s1">&#39;Henrik Finsberg&#39;</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Could not find author with name &#39;Henrik Finsberg&#39;. Will use &#39;Henrik Nicolay Finsberg&#39; instead
+<span class=" -Color -Color-Faint">2022-12-31 08:49:54</span> [<span class=" -Color -Color-Bold -Color-Bold-Green">info     </span>] <span class=" -Color -Color-Bold">Get author info for Henrik Nicolay Finsberg</span>
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>         Publications for Henrik Nicolay Finsberg (Sorted by citations)         
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━┓
+┃<span class=" -Color -Color-Bold"> Title                                 </span>┃<span class=" -Color -Color-Bold"> Published year </span>┃<span class=" -Color -Color-Bold"> Number of citations </span>┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━┩
+│<span class=" -Color -Color-Cyan"> Efficient estimation of personalized  </span>│<span class=" -Color -Color-Green"> 2018           </span>│<span class=" -Color -Color-Yellow"> 33                  </span>│
+│<span class=" -Color -Color-Cyan"> biventricular mechanical function     </span>│<span class=" -Color -Color-Green">                </span>│<span class=" -Color -Color-Yellow">                     </span>│
+│<span class=" -Color -Color-Cyan"> employing gradient‐based optimization </span>│<span class=" -Color -Color-Green">                </span>│<span class=" -Color -Color-Yellow">                     </span>│
+│<span class=" -Color -Color-Cyan"> Improved computational identification </span>│<span class=" -Color -Color-Green"> 2020           </span>│<span class=" -Color -Color-Yellow"> 31                  </span>│
+│<span class=" -Color -Color-Cyan"> of drug response using optical        </span>│<span class=" -Color -Color-Green">                </span>│<span class=" -Color -Color-Yellow">                     </span>│
+│<span class=" -Color -Color-Cyan"> measurements of human stem cell       </span>│<span class=" -Color -Color-Green">                </span>│<span class=" -Color -Color-Yellow">                     </span>│
+│<span class=" -Color -Color-Cyan"> derived cardiomyocytes in             </span>│<span class=" -Color -Color-Green">                </span>│<span class=" -Color -Color-Yellow">                     </span>│
+│<span class=" -Color -Color-Cyan"> microphysiological systems            </span>│<span class=" -Color -Color-Green">                </span>│<span class=" -Color -Color-Yellow">                     </span>│
+│<span class=" -Color -Color-Cyan"> Estimating cardiac contraction        </span>│<span class=" -Color -Color-Green"> 2018           </span>│<span class=" -Color -Color-Yellow"> 23                  </span>│
+│<span class=" -Color -Color-Cyan"> through high resolution data          </span>│<span class=" -Color -Color-Green">                </span>│<span class=" -Color -Color-Yellow">                     </span>│
+│<span class=" -Color -Color-Cyan"> assimilation of a personalized        </span>│<span class=" -Color -Color-Green">                </span>│<span class=" -Color -Color-Yellow">                     </span>│
+│<span class=" -Color -Color-Cyan"> mechanical model                      </span>│<span class=" -Color -Color-Green">                </span>│<span class=" -Color -Color-Yellow">                     </span>│
+│<span class=" -Color -Color-Cyan"> In vivo estimation of elastic         </span>│<span class=" -Color -Color-Green"> 2018           </span>│<span class=" -Color -Color-Yellow"> 18                  </span>│
+│<span class=" -Color -Color-Cyan"> heterogeneity in an infarcted human   </span>│<span class=" -Color -Color-Green">                </span>│<span class=" -Color -Color-Yellow">                     </span>│
+│<span class=" -Color -Color-Cyan"> heart                                 </span>│<span class=" -Color -Color-Green">                </span>│<span class=" -Color -Color-Yellow">                     </span>│
+│<span class=" -Color -Color-Cyan"> High‐resolution data assimilation of  </span>│<span class=" -Color -Color-Green"> 2017           </span>│<span class=" -Color -Color-Yellow"> 16                  </span>│
+│<span class=" -Color -Color-Cyan"> cardiac mechanics applied to a        </span>│<span class=" -Color -Color-Green">                </span>│<span class=" -Color -Color-Yellow">                     </span>│
+│<span class=" -Color -Color-Cyan"> dyssynchronous ventricle              </span>│<span class=" -Color -Color-Green">                </span>│<span class=" -Color -Color-Yellow">                     </span>│
+└───────────────────────────────────────┴────────────────┴─────────────────────┘
+</pre></div>
+</div>
+</div>
+</div>
+<p>We see that it will display the 5 most cited papers, sorted with the most cited paper on top. We can also choose to display only 3 papers (using the <code class="docutils literal notranslate"><span class="pre">--n</span></code> flag), and we can also choose to not display papers that are more than two years (using the <code class="docutils literal notranslate"><span class="pre">--max-age</span></code> flag). Let us also add all the authors on the papers for each row using the <code class="docutils literal notranslate"><span class="pre">--add-authors</span></code> flag</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ scholar list-author-publications &#39;Henrik Finsberg&#39; --n=3 --max-age=2 --add-authors
+</pre></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>scholar list-author-publications <span class="s1">&#39;Henrik Finsberg&#39;</span> --n<span class="o">=</span><span class="m">3</span> --max-age<span class="o">=</span><span class="m">2</span> --add-authors
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Could not find author with name &#39;Henrik Finsberg&#39;. Will use &#39;Henrik Nicolay Finsberg&#39; instead
+<span class=" -Color -Color-Faint">2022-12-31 08:50:00</span> [<span class=" -Color -Color-Bold -Color-Bold-Green">info     </span>] <span class=" -Color -Color-Bold">Get author info for Henrik Nicolay Finsberg</span>
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>         Publications for Henrik Nicolay Finsberg (Sorted by citations)         
+┏━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━┓
+┃<span class=" -Color -Color-Bold">                    </span>┃<span class=" -Color -Color-Bold">                   </span>┃<span class=" -Color -Color-Bold">                </span>┃<span class=" -Color -Color-Bold"> Number of          </span>┃
+┃<span class=" -Color -Color-Bold"> Title              </span>┃<span class=" -Color -Color-Bold"> Authors           </span>┃<span class=" -Color -Color-Bold"> Published year </span>┃<span class=" -Color -Color-Bold"> citations          </span>┃
+┡━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━┩
+│<span class=" -Color -Color-Cyan"> Improved           </span>│<span class=" -Color -Color-Magenta"> Karoline Horgmo   </span>│<span class=" -Color -Color-Green"> 2020           </span>│<span class=" -Color -Color-Yellow"> 31                 </span>│
+│<span class=" -Color -Color-Cyan"> computational      </span>│<span class=" -Color -Color-Magenta"> Jæger and Verena  </span>│<span class=" -Color -Color-Green">                </span>│<span class=" -Color -Color-Yellow">                    </span>│
+│<span class=" -Color -Color-Cyan"> identification of  </span>│<span class=" -Color -Color-Magenta"> Charwat and       </span>│<span class=" -Color -Color-Green">                </span>│<span class=" -Color -Color-Yellow">                    </span>│
+│<span class=" -Color -Color-Cyan"> drug response      </span>│<span class=" -Color -Color-Magenta"> Bérénice Charrez  </span>│<span class=" -Color -Color-Green">                </span>│<span class=" -Color -Color-Yellow">                    </span>│
+│<span class=" -Color -Color-Cyan"> using optical      </span>│<span class=" -Color -Color-Magenta"> and Henrik        </span>│<span class=" -Color -Color-Green">                </span>│<span class=" -Color -Color-Yellow">                    </span>│
+│<span class=" -Color -Color-Cyan"> measurements of    </span>│<span class=" -Color -Color-Magenta"> Finsberg and Mary </span>│<span class=" -Color -Color-Green">                </span>│<span class=" -Color -Color-Yellow">                    </span>│
+│<span class=" -Color -Color-Cyan"> human stem cell    </span>│<span class=" -Color -Color-Magenta"> M Maleckar and    </span>│<span class=" -Color -Color-Green">                </span>│<span class=" -Color -Color-Yellow">                    </span>│
+│<span class=" -Color -Color-Cyan"> derived            </span>│<span class=" -Color -Color-Magenta"> Samuel Wall and   </span>│<span class=" -Color -Color-Green">                </span>│<span class=" -Color -Color-Yellow">                    </span>│
+│<span class=" -Color -Color-Cyan"> cardiomyocytes in  </span>│<span class=" -Color -Color-Magenta"> Kevin E Healy and </span>│<span class=" -Color -Color-Green">                </span>│<span class=" -Color -Color-Yellow">                    </span>│
+│<span class=" -Color -Color-Cyan"> microphysiological </span>│<span class=" -Color -Color-Magenta"> Aslak Tveito      </span>│<span class=" -Color -Color-Green">                </span>│<span class=" -Color -Color-Yellow">                    </span>│
+│<span class=" -Color -Color-Cyan"> systems            </span>│<span class=" -Color -Color-Magenta">                   </span>│<span class=" -Color -Color-Green">                </span>│<span class=" -Color -Color-Yellow">                    </span>│
+│<span class=" -Color -Color-Cyan"> In vitro safety    </span>│<span class=" -Color -Color-Magenta"> Bérénice Charrez  </span>│<span class=" -Color -Color-Green"> 2021           </span>│<span class=" -Color -Color-Yellow"> 8                  </span>│
+│<span class=" -Color -Color-Cyan"> “clinical trial”   </span>│<span class=" -Color -Color-Magenta"> and Verena        </span>│<span class=" -Color -Color-Green">                </span>│<span class=" -Color -Color-Yellow">                    </span>│
+│<span class=" -Color -Color-Cyan"> of the cardiac     </span>│<span class=" -Color -Color-Magenta"> Charwat and Brian </span>│<span class=" -Color -Color-Green">                </span>│<span class=" -Color -Color-Yellow">                    </span>│
+│<span class=" -Color -Color-Cyan"> liability of drug  </span>│<span class=" -Color -Color-Magenta"> Siemons and       </span>│<span class=" -Color -Color-Green">                </span>│<span class=" -Color -Color-Yellow">                    </span>│
+│<span class=" -Color -Color-Cyan"> polytherapy        </span>│<span class=" -Color -Color-Magenta"> Henrik Finsberg   </span>│<span class=" -Color -Color-Green">                </span>│<span class=" -Color -Color-Yellow">                    </span>│
+│<span class=" -Color -Color-Cyan">                    </span>│<span class=" -Color -Color-Magenta"> and Evan W Miller </span>│<span class=" -Color -Color-Green">                </span>│<span class=" -Color -Color-Yellow">                    </span>│
+│<span class=" -Color -Color-Cyan">                    </span>│<span class=" -Color -Color-Magenta"> and Andrew G      </span>│<span class=" -Color -Color-Green">                </span>│<span class=" -Color -Color-Yellow">                    </span>│
+│<span class=" -Color -Color-Cyan">                    </span>│<span class=" -Color -Color-Magenta"> Edwards and Kevin </span>│<span class=" -Color -Color-Green">                </span>│<span class=" -Color -Color-Yellow">                    </span>│
+│<span class=" -Color -Color-Cyan">                    </span>│<span class=" -Color -Color-Magenta"> E Healy           </span>│<span class=" -Color -Color-Green">                </span>│<span class=" -Color -Color-Yellow">                    </span>│
+│<span class=" -Color -Color-Cyan"> Heart muscle       </span>│<span class=" -Color -Color-Magenta"> Bérénice Charrez  </span>│<span class=" -Color -Color-Green"> 2021           </span>│<span class=" -Color -Color-Yellow"> 7                  </span>│
+│<span class=" -Color -Color-Cyan"> microphysiological </span>│<span class=" -Color -Color-Magenta"> and Verena        </span>│<span class=" -Color -Color-Green">                </span>│<span class=" -Color -Color-Yellow">                    </span>│
+│<span class=" -Color -Color-Cyan"> system for cardiac </span>│<span class=" -Color -Color-Magenta"> Charwat and Brian </span>│<span class=" -Color -Color-Green">                </span>│<span class=" -Color -Color-Yellow">                    </span>│
+│<span class=" -Color -Color-Cyan"> liability          </span>│<span class=" -Color -Color-Magenta"> A Siemons and     </span>│<span class=" -Color -Color-Green">                </span>│<span class=" -Color -Color-Yellow">                    </span>│
+│<span class=" -Color -Color-Cyan"> prediction of      </span>│<span class=" -Color -Color-Magenta"> Ishan Goswami and </span>│<span class=" -Color -Color-Green">                </span>│<span class=" -Color -Color-Yellow">                    </span>│
+│<span class=" -Color -Color-Cyan"> repurposed         </span>│<span class=" -Color -Color-Magenta"> Courtney Sakolish </span>│<span class=" -Color -Color-Green">                </span>│<span class=" -Color -Color-Yellow">                    </span>│
+│<span class=" -Color -Color-Cyan"> COVID-19           </span>│<span class=" -Color -Color-Magenta"> and Yu-Syuan Luo  </span>│<span class=" -Color -Color-Green">                </span>│<span class=" -Color -Color-Yellow">                    </span>│
+│<span class=" -Color -Color-Cyan"> therapeutics       </span>│<span class=" -Color -Color-Magenta"> and Henrik        </span>│<span class=" -Color -Color-Green">                </span>│<span class=" -Color -Color-Yellow">                    </span>│
+│<span class=" -Color -Color-Cyan">                    </span>│<span class=" -Color -Color-Magenta"> Finsberg and      </span>│<span class=" -Color -Color-Green">                </span>│<span class=" -Color -Color-Yellow">                    </span>│
+│<span class=" -Color -Color-Cyan">                    </span>│<span class=" -Color -Color-Magenta"> Andrew G Edwards  </span>│<span class=" -Color -Color-Green">                </span>│<span class=" -Color -Color-Yellow">                    </span>│
+│<span class=" -Color -Color-Cyan">                    </span>│<span class=" -Color -Color-Magenta"> and Evan W Miller </span>│<span class=" -Color -Color-Green">                </span>│<span class=" -Color -Color-Yellow">                    </span>│
+│<span class=" -Color -Color-Cyan">                    </span>│<span class=" -Color -Color-Magenta"> and Ivan Rusyn    </span>│<span class=" -Color -Color-Green">                </span>│<span class=" -Color -Color-Yellow">                    </span>│
+│<span class=" -Color -Color-Cyan">                    </span>│<span class=" -Color -Color-Magenta"> and Kevin E Healy </span>│<span class=" -Color -Color-Green">                </span>│<span class=" -Color -Color-Yellow">                    </span>│
+└────────────────────┴───────────────────┴────────────────┴────────────────────┘
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="listing-publications-for-the-whole-deparment">
+<h2>Listing publications for the whole deparment<a class="headerlink" href="#listing-publications-for-the-whole-deparment" title="Permalink to this headline">#</a></h2>
+<p>Our department now consists of two researchers (Henrik Finsberg and Joakim Sundnes), but you could imaging that you have a lot of researchers in you department. It would then be nice to list all the most cited papers for the whole deparment. We can do this with the</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ scholar list-department-publications
+</pre></div>
+</div>
+<p>command. Let us first loook at the help menu</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>scholar list-department-publications --help
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Bold">                                                                                </span>
+<span class=" -Color -Color-Bold"> </span><span class=" -Color -Color-Bold -Color-Bold-Yellow">Usage: </span><span class=" -Color -Color-Bold">scholar list-department-publications [OPTIONS]                          </span>
+<span class=" -Color -Color-Bold">                                                                                </span>
+ List department publications                                                   
+                                                                                
+<span class=" -Color -Color-Faint">╭─ Options ────────────────────────────────────────────────────────────────────╮</span>
+<span class=" -Color -Color-Faint">│</span> <span class=" -Color -Color-Bold -Color-Bold-Cyan">--n</span>                                            <span class=" -Color -Color-Bold -Color-Bold-Yellow">INTEGER</span>  <span class=" -Color -Color-Faint">[default: 5]</span>         <span class=" -Color -Color-Faint">│</span>
+<span class=" -Color -Color-Faint">│</span> <span class=" -Color -Color-Bold -Color-Bold-Cyan">--sort-by-citations</span>    <span class=" -Color -Color-Bold -Color-Bold-Magenta">--no-sort-by-citati…</span>    <span class=" -Color -Color-Bold -Color-Bold-Yellow">       </span>  <span class=" -Color -Color-Faint">[default:           </span> <span class=" -Color -Color-Faint">│</span>
+<span class=" -Color -Color-Faint">│</span>                                                         <span class=" -Color -Color-Faint">sort-by-citations]  </span> <span class=" -Color -Color-Faint">│</span>
+<span class=" -Color -Color-Faint">│</span> <span class=" -Color -Color-Bold -Color-Bold-Cyan">--add-authors</span>          <span class=" -Color -Color-Bold -Color-Bold-Magenta">--no-add-authors</span>        <span class=" -Color -Color-Bold -Color-Bold-Yellow">       </span>  <span class=" -Color -Color-Faint">[default:           </span> <span class=" -Color -Color-Faint">│</span>
+<span class=" -Color -Color-Faint">│</span>                                                         <span class=" -Color -Color-Faint">no-add-authors]     </span> <span class=" -Color -Color-Faint">│</span>
+<span class=" -Color -Color-Faint">│</span> <span class=" -Color -Color-Bold -Color-Bold-Cyan">--max-age</span>                                      <span class=" -Color -Color-Bold -Color-Bold-Yellow">INTEGER</span>  <span class=" -Color -Color-Faint">[default: None]</span>      <span class=" -Color -Color-Faint">│</span>
+<span class=" -Color -Color-Faint">│</span> <span class=" -Color -Color-Bold -Color-Bold-Cyan">--cache-dir</span>                                    <span class=" -Color -Color-Bold -Color-Bold-Yellow">TEXT   </span>  <span class=" -Color -Color-Faint">[default:           </span> <span class=" -Color -Color-Faint">│</span>
+<span class=" -Color -Color-Faint">│</span>                                                         <span class=" -Color -Color-Faint">/home/runner/.pysch…</span> <span class=" -Color -Color-Faint">│</span>
+<span class=" -Color -Color-Faint">│</span> <span class=" -Color -Color-Bold -Color-Bold-Cyan">--help</span>                                         <span class=" -Color -Color-Bold -Color-Bold-Yellow">       </span>  Show this message    <span class=" -Color -Color-Faint">│</span>
+<span class=" -Color -Color-Faint">│</span>                                                         and exit.            <span class=" -Color -Color-Faint">│</span>
+<span class=" -Color -Color-Faint">╰──────────────────────────────────────────────────────────────────────────────╯</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Let us list the most cited papers not older than 2 year using the command</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ scholar list-department-publications --max-age=2
+</pre></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>scholar list-department-publications --max-age<span class="o">=</span><span class="m">2</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Faint">2022-12-31 08:50:14</span> [<span class=" -Color -Color-Bold -Color-Bold-Green">info     </span>] <span class=" -Color -Color-Bold">Get publication for Henrik Nicolay Finsberg with id NDPIHoEAAAAJ</span>
+<span class=" -Color -Color-Faint">2022-12-31 08:50:14</span> [<span class=" -Color -Color-Bold -Color-Bold-Green">info     </span>] <span class=" -Color -Color-Bold">Get author info for Henrik Nicolay Finsberg</span>
+<span class=" -Color -Color-Faint">2022-12-31 08:50:14</span> [<span class=" -Color -Color-Bold -Color-Bold-Green">info     </span>] <span class=" -Color -Color-Bold">Get publication for Joakim Sundnes with id YfOpQUcAAAAJ</span>
+<span class=" -Color -Color-Faint">2022-12-31 08:50:14</span> [<span class=" -Color -Color-Bold -Color-Bold-Green">info     </span>] <span class=" -Color -Color-Bold">Get author info for Joakim Sundnes</span>
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>               Publications for department (Sorted by citations)                
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━┓
+┃<span class=" -Color -Color-Bold"> Title                                 </span>┃<span class=" -Color -Color-Bold"> Published year </span>┃<span class=" -Color -Color-Bold"> Number of citations </span>┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━┩
+│<span class=" -Color -Color-Cyan"> Uncertainty quantification and        </span>│<span class=" -Color -Color-Green"> 2020           </span>│<span class=" -Color -Color-Yellow"> 32                  </span>│
+│<span class=" -Color -Color-Cyan"> sensitivity analysis of left          </span>│<span class=" -Color -Color-Green">                </span>│<span class=" -Color -Color-Yellow">                     </span>│
+│<span class=" -Color -Color-Cyan"> ventricular function during the full  </span>│<span class=" -Color -Color-Green">                </span>│<span class=" -Color -Color-Yellow">                     </span>│
+│<span class=" -Color -Color-Cyan"> cardiac cycle                         </span>│<span class=" -Color -Color-Green">                </span>│<span class=" -Color -Color-Yellow">                     </span>│
+│<span class=" -Color -Color-Cyan"> Improved computational identification </span>│<span class=" -Color -Color-Green"> 2020           </span>│<span class=" -Color -Color-Yellow"> 31                  </span>│
+│<span class=" -Color -Color-Cyan"> of drug response using optical        </span>│<span class=" -Color -Color-Green">                </span>│<span class=" -Color -Color-Yellow">                     </span>│
+│<span class=" -Color -Color-Cyan"> measurements of human stem cell       </span>│<span class=" -Color -Color-Green">                </span>│<span class=" -Color -Color-Yellow">                     </span>│
+│<span class=" -Color -Color-Cyan"> derived cardiomyocytes in             </span>│<span class=" -Color -Color-Green">                </span>│<span class=" -Color -Color-Yellow">                     </span>│
+│<span class=" -Color -Color-Cyan"> microphysiological systems            </span>│<span class=" -Color -Color-Green">                </span>│<span class=" -Color -Color-Yellow">                     </span>│
+│<span class=" -Color -Color-Cyan"> Nationwide rollout reveals efficacy   </span>│<span class=" -Color -Color-Green"> 2021           </span>│<span class=" -Color -Color-Yellow"> 14                  </span>│
+│<span class=" -Color -Color-Cyan"> of epidemic control through digital   </span>│<span class=" -Color -Color-Green">                </span>│<span class=" -Color -Color-Yellow">                     </span>│
+│<span class=" -Color -Color-Cyan"> contact tracing                       </span>│<span class=" -Color -Color-Green">                </span>│<span class=" -Color -Color-Yellow">                     </span>│
+│<span class=" -Color -Color-Cyan"> Computational modeling studies of the </span>│<span class=" -Color -Color-Green"> 2021           </span>│<span class=" -Color -Color-Yellow"> 12                  </span>│
+│<span class=" -Color -Color-Cyan"> roles of left ventricular geometry,   </span>│<span class=" -Color -Color-Green">                </span>│<span class=" -Color -Color-Yellow">                     </span>│
+│<span class=" -Color -Color-Cyan"> afterload, and muscle contractility   </span>│<span class=" -Color -Color-Green">                </span>│<span class=" -Color -Color-Yellow">                     </span>│
+│<span class=" -Color -Color-Cyan"> on myocardial strains in heart        </span>│<span class=" -Color -Color-Green">                </span>│<span class=" -Color -Color-Yellow">                     </span>│
+│<span class=" -Color -Color-Cyan"> failure with preserved ejection …     </span>│<span class=" -Color -Color-Green">                </span>│<span class=" -Color -Color-Yellow">                     </span>│
+│<span class=" -Color -Color-Cyan"> Multisite pacing and myocardial       </span>│<span class=" -Color -Color-Green"> 2020           </span>│<span class=" -Color -Color-Yellow"> 8                   </span>│
+│<span class=" -Color -Color-Cyan"> scars: a computational study          </span>│<span class=" -Color -Color-Green">                </span>│<span class=" -Color -Color-Yellow">                     </span>│
+└───────────────────────────────────────┴────────────────┴─────────────────────┘
+</pre></div>
+</div>
+</div>
+</div>
+<p>We can also get the 5 most recent publications using the <code class="docutils literal notranslate"><span class="pre">--no-sort-by-citations</span></code> flag</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>scholar list-department-publications --no-sort-by-citations
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Faint">2022-12-31 08:50:22</span> [<span class=" -Color -Color-Bold -Color-Bold-Green">info     </span>] <span class=" -Color -Color-Bold">Get publication for Henrik Nicolay Finsberg with id NDPIHoEAAAAJ</span>
+<span class=" -Color -Color-Faint">2022-12-31 08:50:22</span> [<span class=" -Color -Color-Bold -Color-Bold-Green">info     </span>] <span class=" -Color -Color-Bold">Get author info for Henrik Nicolay Finsberg</span>
+<span class=" -Color -Color-Faint">2022-12-31 08:50:22</span> [<span class=" -Color -Color-Bold -Color-Bold-Green">info     </span>] <span class=" -Color -Color-Bold">Get publication for Joakim Sundnes with id YfOpQUcAAAAJ</span>
+<span class=" -Color -Color-Faint">2022-12-31 08:50:22</span> [<span class=" -Color -Color-Bold -Color-Bold-Green">info     </span>] <span class=" -Color -Color-Bold">Get author info for Joakim Sundnes</span>
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>                  Publications for department (Sorted by age)                   
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━┓
+┃<span class=" -Color -Color-Bold"> Title                                 </span>┃<span class=" -Color -Color-Bold"> Published year </span>┃<span class=" -Color -Color-Bold"> Number of citations </span>┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━┩
+│<span class=" -Color -Color-Cyan"> A computational model of right        </span>│<span class=" -Color -Color-Green"> 2022           </span>│<span class=" -Color -Color-Yellow"> 0                   </span>│
+│<span class=" -Color -Color-Cyan"> ventricular remodelling in the        </span>│<span class=" -Color -Color-Green">                </span>│<span class=" -Color -Color-Yellow">                     </span>│
+│<span class=" -Color -Color-Cyan"> presence of pulmonary arterial        </span>│<span class=" -Color -Color-Green">                </span>│<span class=" -Color -Color-Yellow">                     </span>│
+│<span class=" -Color -Color-Cyan"> hypertension                          </span>│<span class=" -Color -Color-Green">                </span>│<span class=" -Color -Color-Yellow">                     </span>│
+│<span class=" -Color -Color-Cyan"> Regional Left Ventricular Fiber       </span>│<span class=" -Color -Color-Green"> 2022           </span>│<span class=" -Color -Color-Yellow"> 0                   </span>│
+│<span class=" -Color -Color-Cyan"> Stress Analysis for Cardiac           </span>│<span class=" -Color -Color-Green">                </span>│<span class=" -Color -Color-Yellow">                     </span>│
+│<span class=" -Color -Color-Cyan"> Resynchronization Therapy Response    </span>│<span class=" -Color -Color-Green">                </span>│<span class=" -Color -Color-Yellow">                     </span>│
+│<span class=" -Color -Color-Cyan"> Computational models of ventricular   </span>│<span class=" -Color -Color-Green"> 2022           </span>│<span class=" -Color -Color-Yellow"> 0                   </span>│
+│<span class=" -Color -Color-Cyan"> mechanics and adaptation in response  </span>│<span class=" -Color -Color-Green">                </span>│<span class=" -Color -Color-Yellow">                     </span>│
+│<span class=" -Color -Color-Cyan"> to right-ventricular pressure         </span>│<span class=" -Color -Color-Green">                </span>│<span class=" -Color -Color-Yellow">                     </span>│
+│<span class=" -Color -Color-Cyan"> overload                              </span>│<span class=" -Color -Color-Green">                </span>│<span class=" -Color -Color-Yellow">                     </span>│
+│<span class=" -Color -Color-Cyan"> Validating the Arrhythmogenic         </span>│<span class=" -Color -Color-Green"> 2022           </span>│<span class=" -Color -Color-Yellow"> 0                   </span>│
+│<span class=" -Color -Color-Cyan"> Potential of High-, Intermediate-,    </span>│<span class=" -Color -Color-Green">                </span>│<span class=" -Color -Color-Yellow">                     </span>│
+│<span class=" -Color -Color-Cyan"> and Low-Risk Drugs in a Human-Induced </span>│<span class=" -Color -Color-Green">                </span>│<span class=" -Color -Color-Yellow">                     </span>│
+│<span class=" -Color -Color-Cyan"> Pluripotent Stem Cell-Derived Cardiac </span>│<span class=" -Color -Color-Green">                </span>│<span class=" -Color -Color-Yellow">                     </span>│
+│<span class=" -Color -Color-Cyan"> Microphysiological System             </span>│<span class=" -Color -Color-Green">                </span>│<span class=" -Color -Color-Yellow">                     </span>│
+│<span class=" -Color -Color-Cyan"> Data aggregation and anonymization    </span>│<span class=" -Color -Color-Green"> 2022           </span>│<span class=" -Color -Color-Yellow"> 0                   </span>│
+│<span class=" -Color -Color-Cyan"> for mathematical modeling and         </span>│<span class=" -Color -Color-Green">                </span>│<span class=" -Color -Color-Yellow">                     </span>│
+│<span class=" -Color -Color-Cyan"> epidemiological studies               </span>│<span class=" -Color -Color-Green">                </span>│<span class=" -Color -Color-Yellow">                     </span>│
+└───────────────────────────────────────┴────────────────┴─────────────────────┘
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            kernelName: "python3",
+            path: "./docs"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="../README.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">pygcholar</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="api.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">API documentation</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By Henrik Finsberg<br/>
+  
+      &copy; Copyright 2022.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>
