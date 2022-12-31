@@ -24,11 +24,11 @@ You can of course also install it with regular `pip`
 python -m pip install pygscholar
 ```
 
-Once installed you should get access to the `scholar` command. See [the tutorial](docs/tutorial.ipynb) for a guide on how to use this command.
+Once installed you should get access to the `scholar` command. See [the tutorial](https://finsberg.github.io/pygscholar/docs/tutorial.html) for a guide on how to use this command.
 
 
 ## Contributing
-See https://finsberg.github.io/pygscholar/CONTRIBUTING.html
+See https://finsberg.github.io/pygscholar/docs/CONTRIBUTING.html
 
 ## License
 MIT
