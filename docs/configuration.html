@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>API documentation &#8212; pygscholar</title>
+    <title>Configuration &#8212; pygscholar</title>
     
   <!-- Loaded before other Sphinx assets -->
   <link href="../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
@@ -52,8 +52,8 @@ const thebe_selector_output = ".output, .cell_output"
     <script async="async" src="../_static/sphinx-thebe.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Contributing" href="CONTRIBUTING.html" />
-    <link rel="prev" title="Configuration" href="configuration.html" />
+    <link rel="next" title="API documentation" href="api.html" />
+    <link rel="prev" title="Tutorial" href="tutorial.html" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="docsearch:language" content="None">
     
@@ -114,13 +114,13 @@ const thebe_selector_output = ".output, .cell_output"
    Tutorial
   </a>
  </li>
- <li class="toctree-l1">
-  <a class="reference internal" href="configuration.html">
+ <li class="toctree-l1 current active">
+  <a class="current reference internal" href="#">
    Configuration
   </a>
  </li>
- <li class="toctree-l1 current active">
-  <a class="current reference internal" href="#">
+ <li class="toctree-l1">
+  <a class="reference internal" href="api.html">
    API documentation
   </a>
  </li>
@@ -219,7 +219,7 @@ title="Source repository"
       </li>
       
       <li>
-        <a href="https://github.com/finsberg/pygscholar/issues/new?title=Issue%20on%20page%20%2Fdocs/api.html&body=Your%20issue%20content%20here."
+        <a href="https://github.com/finsberg/pygscholar/issues/new?title=Issue%20on%20page%20%2Fdocs/configuration.html&body=Your%20issue%20content%20here."
    class="headerbtn"
    data-toggle="tooltip"
 data-placement="left"
@@ -247,7 +247,7 @@ title="Open an issue"
   <div class="menu-dropdown__content">
     <ul>
       <li>
-        <a href="../_sources/docs/api.rst"
+        <a href="../_sources/docs/configuration.md"
    class="headerbtn"
    data-toggle="tooltip"
 data-placement="left"
@@ -258,7 +258,7 @@ title="Download source file"
 <span class="headerbtn__icon-container">
   <i class="fas fa-file"></i>
   </span>
-<span class="headerbtn__text-container">.rst</span>
+<span class="headerbtn__text-container">.md</span>
 </a>
 
       </li>
@@ -307,33 +307,13 @@ title="Print to PDF"
     <nav id="bd-toc-nav" aria-label="Page">
         <ul class="visible nav section-nav flex-column">
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#module-pygscholar.author">
-   author
+  <a class="reference internal nav-link" href="#how-is-it-working">
+   How is it working
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#module-pygscholar.cli">
-   cli
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#module-pygscholar.department">
-   department
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#module-pygscholar.publication">
-   publication
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#module-pygscholar.scholar_api">
-   scholar_api
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#module-pygscholar.utils">
-   utils
+  <a class="reference internal nav-link" href="#set-up-slack-bot">
+   Set up slack bot
   </a>
  </li>
 </ul>
@@ -345,7 +325,7 @@ title="Print to PDF"
         <div class="col pl-md-3 pl-lg-5 content-container">
             <!-- Table of contents that is only displayed when printing the page -->
             <div id="jb-print-docs-body" class="onlyprint">
-                <h1>API documentation</h1>
+                <h1>Configuration</h1>
                 <!-- Table of contents -->
                 <div id="print-main-content">
                     <div id="jb-print-toc">
@@ -356,33 +336,13 @@ title="Print to PDF"
                         <nav aria-label="Page">
                             <ul class="visible nav section-nav flex-column">
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#module-pygscholar.author">
-   author
+  <a class="reference internal nav-link" href="#how-is-it-working">
+   How is it working
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#module-pygscholar.cli">
-   cli
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#module-pygscholar.department">
-   department
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#module-pygscholar.publication">
-   publication
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#module-pygscholar.scholar_api">
-   scholar_api
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#module-pygscholar.utils">
-   utils
+  <a class="reference internal nav-link" href="#set-up-slack-bot">
+   Set up slack bot
   </a>
  </li>
 </ul>
@@ -395,42 +355,32 @@ title="Print to PDF"
                 
               <div>
                 
-  <section id="module-pygscholar">
-<span id="api-documentation"></span><h1>API documentation<a class="headerlink" href="#module-pygscholar" title="Permalink to this headline">#</a></h1>
-<section id="module-pygscholar.author">
-<span id="author"></span><h2>author<a class="headerlink" href="#module-pygscholar.author" title="Permalink to this headline">#</a></h2>
+  <section class="tex2jax_ignore mathjax_ignore" id="configuration">
+<h1>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">#</a></h1>
+<p>In this document we will explain how <code class="docutils literal notranslate"><span class="pre">pygscholar</span></code> is working underneath and how to configure it.</p>
+<section id="how-is-it-working">
+<h2>How is it working<a class="headerlink" href="#how-is-it-working" title="Permalink to this headline">#</a></h2>
+<p>When you add an author to the database, <code class="docutils literal notranslate"><span class="pre">pygscholar</span></code> will add the author to a file called <code class="docutils literal notranslate"><span class="pre">authors.json</span></code> in a cache directory. By default this is set to a directory called <code class="docutils literal notranslate"><span class="pre">.pygscholar</span></code> in your home directory. However, you can also specify a different directory by setting the environment variable <code class="docutils literal notranslate"><span class="pre">PYSCHOLAR_CACHE_DIR</span></code> to the desired directory. This is convenient if you want to work with different departments. Note also that you can pass the cache directory in as an argument to most commands.</p>
+<p>For the <code class="docutils literal notranslate"><span class="pre">list-new-dep-publications</span></code> command, it will also keep track of all the publications for the department in a file called <code class="docutils literal notranslate"><span class="pre">publications.json</span></code> in the cache directory. Whenever, it recognizes a publication that is not listed in this file, it will report it as a new publication.</p>
 </section>
-<section id="module-pygscholar.cli">
-<span id="cli"></span><h2>cli<a class="headerlink" href="#module-pygscholar.cli" title="Permalink to this headline">#</a></h2>
-<dl class="py class">
-<dt class="sig sig-object py" id="pygscholar.cli.PublicationObject">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pygscholar.cli.</span></span><span class="sig-name descname"><span class="pre">PublicationObject</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygscholar/cli.html#PublicationObject"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygscholar.cli.PublicationObject" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="pygscholar.cli.license_callback">
-<span class="sig-prename descclassname"><span class="pre">pygscholar.cli.</span></span><span class="sig-name descname"><span class="pre">license_callback</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">show_license</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygscholar/cli.html#license_callback"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygscholar.cli.license_callback" title="Permalink to this definition">#</a></dt>
-<dd><p>Prints license information.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="pygscholar.cli.version_callback">
-<span class="sig-prename descclassname"><span class="pre">pygscholar.cli.</span></span><span class="sig-name descname"><span class="pre">version_callback</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">show_version</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pygscholar/cli.html#version_callback"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pygscholar.cli.version_callback" title="Permalink to this definition">#</a></dt>
-<dd><p>Prints version information.</p>
-</dd></dl>
-
-</section>
-<section id="module-pygscholar.department">
-<span id="department"></span><h2>department<a class="headerlink" href="#module-pygscholar.department" title="Permalink to this headline">#</a></h2>
-</section>
-<section id="module-pygscholar.publication">
-<span id="publication"></span><h2>publication<a class="headerlink" href="#module-pygscholar.publication" title="Permalink to this headline">#</a></h2>
-</section>
-<section id="module-pygscholar.scholar_api">
-<span id="scholar-api"></span><h2>scholar_api<a class="headerlink" href="#module-pygscholar.scholar_api" title="Permalink to this headline">#</a></h2>
-</section>
-<section id="module-pygscholar.utils">
-<span id="utils"></span><h2>utils<a class="headerlink" href="#module-pygscholar.utils" title="Permalink to this headline">#</a></h2>
+<section id="set-up-slack-bot">
+<h2>Set up slack bot<a class="headerlink" href="#set-up-slack-bot" title="Permalink to this headline">#</a></h2>
+<p>It is also possible to make post updates about new publications to slack. To do this you can use the command
+<code class="docutils literal notranslate"><span class="pre">post-slack-new-dep-publications</span></code>. In order for this to work you need to first make sure to install the <code class="docutils literal notranslate"><span class="pre">slack_sdk</span></code></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">slack_sdk</span>
+</pre></div>
+</div>
+<p>and then  set up a slack bot as described at <a class="reference external" href="https://github.com/slackapi/python-slack-sdk/blob/main/tutorial/01-creating-the-slack-app.md">https://github.com/slackapi/python-slack-sdk/blob/main/tutorial/01-creating-the-slack-app.md</a>. You need to also pass the <em>Bot User OAuth Access Token</em> to <code class="docutils literal notranslate"><span class="pre">pygscholar</span></code>. You can do this in three ways</p>
+<ul>
+<li><p>Setting the environment variable <code class="docutils literal notranslate"><span class="pre">SLACK_BOT_TOKEN</span></code> to the token value, or</p></li>
+<li><p>Creating a file called <code class="docutils literal notranslate"><span class="pre">~/.pygscholarrc</span></code> or a file inside the cache directory called <code class="docutils literal notranslate"><span class="pre">config</span></code> with the following content</p>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[SLACK_BOT_TOKEN]</span><span class="w"></span>
+<span class="n">token</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">xoxp-xxxxxxxxxxxxxxxxxxxxxxxxxxx</span><span class="w"></span>
+</pre></div>
+</div>
+<p>where you swap out <code class="docutils literal notranslate"><span class="pre">xoxp-xxxxxxxxxxxxxxxxxxxxxxxxxxx</span></code> with your token</p>
+</li>
+</ul>
 </section>
 </section>
 
@@ -461,17 +411,17 @@ title="Print to PDF"
                 
     <!-- Previous / next buttons -->
 <div class='prev-next-area'>
-    <a class='left-prev' id="prev-link" href="configuration.html" title="previous page">
+    <a class='left-prev' id="prev-link" href="tutorial.html" title="previous page">
         <i class="fas fa-angle-left"></i>
         <div class="prev-next-info">
             <p class="prev-next-subtitle">previous</p>
-            <p class="prev-next-title">Configuration</p>
+            <p class="prev-next-title">Tutorial</p>
         </div>
     </a>
-    <a class='right-next' id="next-link" href="CONTRIBUTING.html" title="next page">
+    <a class='right-next' id="next-link" href="api.html" title="next page">
     <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Contributing</p>
+        <p class="prev-next-title">API documentation</p>
     </div>
     <i class="fas fa-angle-right"></i>
     </a>
