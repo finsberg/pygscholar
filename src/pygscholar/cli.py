@@ -1,3 +1,4 @@
+import configparser
 import difflib
 import os
 from pathlib import Path
@@ -18,8 +19,9 @@ from .publication import Publication
 
 DEFAULT_CACHE_DIR = os.getenv(
     "PYSCHOLAR_CACHE_DIR",
-    Path.home().joinpath(".pyscholar").as_posix(),
+    Path.home().joinpath(".pygscholar").as_posix(),
 )
+CONFIG_PATH = Path.home() / ".pygscholarrc"
 app = typer.Typer()
 
 
@@ -325,9 +327,16 @@ def post_slack_new_dep_publications(
         msg = "Please install slack_sdg: 'pip install slack_sdk"
         raise ImportError(msg) from e
 
+    config = configparser.ConfigParser()
+    if token := os.getenv("SLACK_BOT_TOKEN", ""):
+        config["SLACK_BOT_TOKEN"] = {"token": token}
+    else:
+        config.read([CONFIG_PATH, Path(cache_dir) / "config"])
+
     try:
-        token = os.environ["SLACK_BOT_TOKEN"]
-    except KeyError as e:
+        token = config.get("SLACK_BOT_TOKEN", "token")
+
+    except Exception as e:
         msg = "Please set the 'SLACK_BOT_TOKEN'"
         raise KeyError(msg) from e
 
