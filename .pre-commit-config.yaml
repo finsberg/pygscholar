@@ -37,3 +37,8 @@ repos:
     rev: v0.950
     hooks:
       - id: mypy
+
+  - repo: https://github.com/kynan/nbstripout
+    rev: 0.6.1
+    hooks:
+      - id: nbstripout
