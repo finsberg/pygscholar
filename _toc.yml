@@ -3,5 +3,6 @@ root: README
 
 chapters:
   - file: "docs/tutorial"
+  - file: "docs/configuration"
   - file: "docs/api"
   - file: "docs/CONTRIBUTING"
