@@ -11,7 +11,7 @@ jobs:
         python-version: ["3.8", "3.9", "3.10", "3.11"]
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v4
       with:
@@ -22,12 +22,34 @@ jobs:
     - name: Test with pytest
       run: |
         python -m pytest
+
+
     - name: Coverage report
-      uses: codecov/codecov-action@v2
       if: github.ref == 'refs/heads/main' && matrix.python-version == '3.10'
+      run: |
+        python3 -m coverage report | sed 's/^/    /' >> $GITHUB_STEP_SUMMARY
+        python3 -m coverage json
+        export TOTAL=$(python -c "import json;print(json.load(open('coverage.json'))['totals']['percent_covered_display'])")
+        echo "total=$TOTAL" >> $GITHUB_ENV
+
+    - name: Upload HTML report.
+      uses: actions/upload-artifact@v3
       with:
-        fail_ci_if_error: true
-        files: ./coverage.xml
+        name: html-report
+        path: htmlcov
+
+    - name: Create coverage Badge
+      if: github.ref == 'refs/heads/main'
+      uses: schneegans/dynamic-badges-action@v1.6.0
+      with:
+        auth: ${{ secrets.GIST_SECRET }}
+        gistID: 940406238abd82b6ee8ec90abb292247
+        filename: pygscholar-badge.json
+        label: Coverage
+        message: ${{ env.total }}%
+        minColorRange: 50
+        maxColorRange: 90
+        valColorRange: ${{ env.total }}
 
     - name: Install pypa/build
       run: >-
