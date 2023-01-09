@@ -4,6 +4,8 @@
 [![codecov](https://codecov.io/gh/finsberg/pygscholar/branch/main/graph/badge.svg?token=IUZ9HMIBFA)](https://codecov.io/gh/finsberg/pygscholar)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+![coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/finsberg/940406238abd82b6ee8ec90abb292247/raw/pygscholar-badge.json)
+
 # pygcholar
 
 Tool for extracting statistics from Google scholar built upon [`scholarly`](https://scholarly.readthedocs.io)
