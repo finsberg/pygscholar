@@ -349,7 +349,7 @@ def post_slack_new_dep_publications(
         full_pub = pub.fill()
 
         text = (
-            ":tada:*New publication by ComPhy team members this week!*\n"
+            ":tada:*New publication by ComPhy team members!*\n"
             ":star::confetti_ball::star::confetti_ball:\n"
             f"*{title}* by _{full_pub.authors}_ "
         )
