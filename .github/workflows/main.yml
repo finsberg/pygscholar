@@ -44,7 +44,7 @@ jobs:
       uses: schneegans/dynamic-badges-action@v1.6.0
       with:
         auth: ${{ secrets.GIST_SECRET }}
-        gistID: 940406238abd82b6ee8ec90abb292247
+        gistID: a7290de789564f03eb6b1ee122fce423
         filename: pygscholar-badge.json
         label: Coverage
         message: ${{ env.total }}%
