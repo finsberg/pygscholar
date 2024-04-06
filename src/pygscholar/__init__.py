@@ -3,11 +3,14 @@ from importlib.metadata import metadata
 from . import author
 from . import department
 from . import publication
-from . import scholar_api
 from . import utils
+from . import config
+from . import api
+from . import cache
 from .author import Author
 from .department import Department
-from .publication import FullPublication
+
+# from .publication import FullPublication
 from .publication import Publication
 
 meta = metadata("pygscholar")
@@ -21,11 +24,13 @@ __program_name__ = meta["Name"]
 __all__ = [
     "Author",
     "Publication",
-    "FullPublication",
+    # "FullPublication",
     "Department",
     "author",
     "publication",
     "department",
-    "scholar_api",
     "utils",
+    "config",
+    "api",
+    "cache",
 ]

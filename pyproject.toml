@@ -1,0 +1,153 @@
+[build-system]
+requires = ["setuptools>=61.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pygscholar"
+version = "0.1.2"
+description = "Tool for interacting with google scholar"
+authors = [{name = "Henrik Finsberg", email = "henriknf@simula.no"}]
+license = {text = "MIT"}
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+]
+keywords = ["action potential", "cell models", "features"]
+urls = {Homepage = "https://github.com/finsberg/pygscholar"}
+requires-python = ">=3.8"
+dependencies = [
+    "pydantic",
+    "rich",
+    "scholarly",
+    "structlog",
+    "typer",
+    "selectolax",
+    "selenium-stealth",
+    "chromedriver-binary-auto",
+]
+
+[project.readme]
+file = "README.md"
+content-type = "text/markdown"
+
+[project.optional-dependencies]
+dev = [
+    "bump2version",
+    "ipython",
+    "pdbpp",
+    "pre-commit",
+    "twine",
+    "wheel",
+    "ruff"
+]
+docs = [
+    "ipython<8.7.0",
+    "jupyter-book",
+]
+slack = ["slack-sdk"]
+test = [
+    "pre-commit",
+    "polyfactory",
+    "pytest",
+    "pytest-cov",
+    "pytest-rerunfailures",
+]
+
+[project.scripts]
+scholar = "pygscholar.cli:app"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+zip-safe = false
+license-files = ["LICENSE"]
+include-package-data = false
+
+[tool.setuptools.packages.find]
+where = ["src"]
+namespaces = false
+
+
+[tool.aliases]
+test = "pytest"
+
+[tool.pytest.ini_options]
+addopts = "--cov=src/pygscholar --cov-report html --cov-report xml --cov-report term-missing --reruns 5 -v"
+testpaths = ["tests"]
+
+
+[tool.mypy]
+files = ["src/pygscholar", "tests"]
+ignore_missing_imports = true
+exclude = "docs"
+
+
+[tool.ruff]
+
+# Exclude a variety of commonly ignored directories.
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+]
+
+# Same as Black.
+line-length = 100
+
+# Assume Python 3.10.
+target-version = "py310"
+
+[tool.ruff.lint]
+# Enable pycodestyle (`E`) and Pyflakes (`F`) codes by default.
+select = ["E", "F"]
+ignore = ["E402", "E741", "E743", "E731"]
+
+# Allow autofix for all enabled rules (when `--fix`) is provided.
+fixable = ["A", "B", "C", "D", "E", "F"]
+unfixable = []
+
+# Allow unused variables when underscore-prefixed.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+
+[tool.ruff.lint.mccabe]
+# Unlike Flake8, default to a complexity level of 10.
+max-complexity = 10
+
+
+[tool.bumpversion]
+allow_dirty = false
+commit = true
+message = "Bump version: {current_version} → {new_version}"
+tag = true
+sign_tags = false
+tag_name = "v{new_version}"
+tag_message = "Bump version: {current_version} → {new_version}"
+current_version = "0.1.2"
+
+
+[[tool.bumpversion.files]]
+filename = "pyproject.toml"
+search = 'version = "{current_version}"'
+replace = 'version = "{new_version}"'

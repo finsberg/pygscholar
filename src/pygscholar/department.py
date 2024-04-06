@@ -3,13 +3,13 @@ from typing import List
 from typing import Sequence
 from typing import Set
 from typing import Tuple
-from typing import Union
 
 from pydantic import BaseModel
 
 from .author import Author
 from .author import author_pub_diff
-from .publication import FullPublication
+
+# from .publication import ScholarlyFullPublication as FullPublication
 from .publication import most_cited
 from .publication import Publication
 from .publication import publications_not_older_than
@@ -71,7 +71,7 @@ def department_diff(
     old_dep: Department,
     fill: bool = False,
     only_new: bool = False,
-) -> Dict[str, Union[Publication, FullPublication]]:
+) -> Dict[str, Publication]:
     # FIXME: Add overload
     author_names = new_dep.names.intersection(old_dep.names)
 

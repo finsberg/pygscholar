@@ -1,6 +1,10 @@
-import configparser
+"""
+Command line interface for pygscholar. You can also set the environment variable
+`PYSCHOLAR_CACHE_DIR` to change the default cache directory.
+
+"""
+
 import difflib
-import os
 from pathlib import Path
 from typing import List
 from typing import Optional
@@ -12,24 +16,14 @@ from rich.console import Console
 from rich.table import Table
 from scholarly import MaxTriesExceededException
 
-from . import department
-from . import scholar_api
 from . import utils
 from .publication import Publication
 
-DEFAULT_CACHE_DIR = os.getenv(
-    "PYSCHOLAR_CACHE_DIR",
-    Path.home().joinpath(".pygscholar").as_posix(),
-)
-CONFIG_PATH = Path.home() / ".pygscholarrc"
-app = typer.Typer()
+from . import api
+from . import config
+from . import cache
 
-
-def check_cache_dir_and_create(cache_dir: str) -> None:
-    cachedir = Path(cache_dir)
-    if not cachedir.is_dir():
-        typer.echo(f"Cache dir {cachedir} does not exist. Creating...")
-        cachedir.mkdir(parents=True)
+app = typer.Typer(help=__doc__)
 
 
 def version_callback(show_version: bool):
@@ -72,9 +66,8 @@ def main(
 
 
 @app.command(help="List all authors")
-def list_authors(cache_dir: str = DEFAULT_CACHE_DIR):
-    authors_file = Path(cache_dir).joinpath("authors.json")
-    authors = utils.load_json(authors_file)
+def list_authors(cache_dir: str = config.DEFAULT_CACHE_DIR):
+    authors = cache.load_authors(cache_dir)
 
     table = Table(title="Authors")
 
@@ -90,32 +83,38 @@ def list_authors(cache_dir: str = DEFAULT_CACHE_DIR):
 
 
 @app.command(help="Search for authors")
-def search_author(name: str):
-    from scholarly import scholarly
-
-    query = scholarly.search_author(name)
+def search_author(
+    name: str,
+    backend: api.APIBackend = api.APIBackend.SCRAPER,
+):
+    authors = api.search_author(name=name, backend=backend)
 
     table = Table(title=f"Search results for author '{name}'")
     table.add_column("Name", style="cyan")
     table.add_column("Scholar ID", style="magenta")
     table.add_column("Affiliation", style="blue")
     table.add_column("Cited by", style="yellow")
-    for item in query:
+
+    for author in authors:
         table.add_row(
-            item["name"],
-            item["scholar_id"],
-            item.get("affiliation", ""),
-            str(item.get("citedby", 0)),
+            author.name,
+            author.scholar_id,
+            author.affiliation,
+            str(author.cited_by),
         )
+
     console = Console()
     console.print(table)
 
 
 @app.command(help="Add new author")
-def add_author(name: str, scholar_id: str = "", cache_dir: str = DEFAULT_CACHE_DIR):
-    check_cache_dir_and_create(cache_dir)
-    authors_file = Path(cache_dir).joinpath("authors.json")
-    authors = utils.load_json(authors_file)
+def add_author(
+    name: str,
+    scholar_id: str = "",
+    cache_dir: str = config.DEFAULT_CACHE_DIR,
+    backend: api.APIBackend = api.APIBackend.SCRAPER,
+):
+    authors = cache.load_authors(cache_dir)
 
     if name in authors:
         typer.echo(f"Author with name {name} already exist in database", err=True)
@@ -125,17 +124,44 @@ def add_author(name: str, scholar_id: str = "", cache_dir: str = DEFAULT_CACHE_D
         raise typer.Exit(102)
 
     try:
-        author = scholar_api.get_author(name, scholar_id=scholar_id, fill=False)
+        author_results = api.search_author(
+            name,
+            scholar_id=scholar_id,
+            backend=backend,
+        )
+
     except MaxTriesExceededException:
-        typer.echo("Unable to find author online...")
+        typer.echo(f"Author {name} does not exist.")
+        raise typer.Exit(104)
     else:
+        if len(author_results) == 0:
+            typer.echo(f"Author {name} does not exist.")
+            raise typer.Exit(104)
+        if len(author_results) > 1:
+            msg = (
+                f"Multiple authors ({len(author_results)}) found. "
+                "Will choose the first result. Please be more specific "
+                "or specify the scholar id if you want more rubust search."
+            )
+            typer.echo(msg)
+
+        author = author_results[0]
         name = author.name
 
         if scholar_id == "":
             scholar_id = author.scholar_id
 
+        # Now check if the author already exists in the database
+        if name in authors:
+            typer.echo(
+                f"Author with name {name} already exist in database",
+                err=True,
+            )
+            raise typer.Exit(101)
+
     authors[name] = scholar_id
-    utils.dump_json(authors, authors_file)
+    cache.save_authors(authors, cache_dir)
+
     typer.echo(
         f"Successfully added author with name {name} and scholar id {scholar_id}",
     )
@@ -154,7 +180,7 @@ def get_closest_name(name: str, names: Sequence[str]):
 
 
 @app.command(help="Remove author")
-def remove_author(name: str, cache_dir: str = DEFAULT_CACHE_DIR):
+def remove_author(name: str, cache_dir: str = config.DEFAULT_CACHE_DIR):
     authors_file = Path(cache_dir).joinpath("authors.json")
     authors = utils.load_json(authors_file)
     if name not in authors:
@@ -183,7 +209,6 @@ def print_publications(publications, sort_by_citations, add_authors, name):
     table.add_column("Published year", style="green")
     table.add_column("Number of citations", style="yellow")
     for pub in publications:
-
         try:
             year = str(pub.year)
         except ValueError:
@@ -199,17 +224,13 @@ def print_publications(publications, sort_by_citations, add_authors, name):
 
 
 class PublicationObject(Protocol):
-    def topk_cited(self, k: int) -> List[Publication]:
-        ...
+    def topk_cited(self, k: int) -> List[Publication]: ...
 
-    def topk_age(self, k: int) -> List[Publication]:
-        ...
+    def topk_age(self, k: int) -> List[Publication]: ...
 
-    def topk_cited_not_older_than(self, k: int, age: int) -> List[Publication]:
-        ...
+    def topk_cited_not_older_than(self, k: int, age: int) -> List[Publication]: ...
 
-    def topk_age_not_older_than(self, k: int, age: int) -> List[Publication]:
-        ...
+    def topk_age_not_older_than(self, k: int, age: int) -> List[Publication]: ...
 
 
 def extract_correct_publications(
@@ -239,7 +260,8 @@ def list_author_publications(
     sort_by_citations: bool = True,
     add_authors: bool = False,
     max_age: Optional[int] = None,
-    cache_dir: str = DEFAULT_CACHE_DIR,
+    cache_dir: str = config.DEFAULT_CACHE_DIR,
+    backend: api.APIBackend = api.APIBackend.SCRAPER,
 ):
     authors_file = Path(cache_dir).joinpath("authors.json")
     authors = utils.load_json(authors_file)
@@ -250,123 +272,155 @@ def list_author_publications(
             f"Could not find author with name '{_name}'. Will use '{name}' instead",
         )
 
-    author = scholar_api.get_author(name=name, scholar_id=authors[name], fill=True)
+    author = api.search_author_with_publications(
+        name=name,
+        scholar_id=authors[name],
+        backend=backend,
+        full=False,
+    )
+
     publications = extract_correct_publications(author, sort_by_citations, max_age, n)
     print_publications(publications, sort_by_citations, add_authors, name)
 
 
-@app.command(help="List department publications")
-def list_department_publications(
-    n: int = 5,
-    sort_by_citations: bool = True,
-    add_authors: bool = False,
-    max_age: Optional[int] = None,
-    cache_dir: str = DEFAULT_CACHE_DIR,
-):
+# @app.command(help="List department publications")
+# def list_department_publications(
+#     n: int = 5,
+#     sort_by_citations: bool = True,
+#     add_authors: bool = False,
+#     max_age: Optional[int] = None,
+#     cache_dir: str = config.DEFAULT_CACHE_DIR,
+# ):
+#     authors_file = Path(cache_dir).joinpath("authors.json")
+#     authors = utils.load_json(authors_file)
+#     dep = scholar_api.extract_scholar_publications(authors)
 
-    authors_file = Path(cache_dir).joinpath("authors.json")
-    authors = utils.load_json(authors_file)
-    dep = scholar_api.extract_scholar_publications(authors)
-
-    publications = extract_correct_publications(dep, sort_by_citations, max_age, n)
-    print_publications(publications, sort_by_citations, add_authors, "department")
+#     publications = extract_correct_publications(dep, sort_by_citations, max_age, n)
+#     print_publications(publications, sort_by_citations, add_authors, "department")
 
 
 def publications_file(cache_dir) -> Path:
     return Path(cache_dir).joinpath("publications.json")
 
 
-def _get_new_dep(cache_dir):
-    authors_file = Path(cache_dir).joinpath("authors.json")
-    authors = utils.load_json(authors_file)
-    dep = scholar_api.extract_scholar_publications(authors)
+# def _get_new_dep(cache_dir):
+#     authors_file = Path(cache_dir).joinpath("authors.json")
+#     authors = utils.load_json(authors_file)
+#     dep = scholar_api.extract_scholar_publications(authors)
 
-    publications = utils.load_json(publications_file(cache_dir))
-    old_dep = department.Department(**publications)
+#     publications = utils.load_json(publications_file(cache_dir))
+#     old_dep = department.Department(**publications)
 
-    return dep, department.department_diff(dep, old_dep, fill=False, only_new=True)
-
-
-@app.command(help="List new publications for the department")
-def list_new_dep_publications(
-    overwrite: bool = False,
-    add_authors: bool = True,
-    cache_dir: str = DEFAULT_CACHE_DIR,
-):
-
-    dep, diff_dep = _get_new_dep(cache_dir)
-    table = Table(title="New publications")
-    table.add_column("Title", style="cyan")
-    if add_authors:
-        table.add_column("Authors", style="magenta")
-    table.add_column("Journal", style="green")
-    for title, pub in diff_dep.items():
-
-        if add_authors:
-            full_pub = pub.fill()
-            table.add_row(title, full_pub.authors, pub.bib.citation)
-        else:
-            table.add_row(title, pub.bib.citation)
-
-    console = Console()
-    console.print(table)
-
-    if overwrite:
-        utils.dump_json(dep.dict(), publications_file(cache_dir))
+#     return dep, department.department_diff(dep, old_dep, fill=False, only_new=True)
 
 
-@app.command(help="Post new publications for the department to Slack")
-def post_slack_new_dep_publications(
-    channel: str,
-    overwrite: bool = False,
-    cache_dir: str = DEFAULT_CACHE_DIR,
-):
-    try:
-        from slack_sdk import WebClient
-    except ImportError as e:
-        msg = "Please install slack_sdg: 'pip install slack_sdk"
-        raise ImportError(msg) from e
+def extract_date(res):
+    for key in ["published-online", "published"]:
+        if key not in res:
+            continue
+        x = res[key]["date-parts"][0]
+        while len(x) < 3:
+            x.append(1)
+        return "-".join(map(str, x))
 
-    config = configparser.ConfigParser()
-    if token := os.getenv("SLACK_BOT_TOKEN", ""):
-        config["SLACK_BOT_TOKEN"] = {"token": token}
-    else:
-        config.read([CONFIG_PATH, Path(cache_dir) / "config"])
+    return "0-0-0"
 
-    try:
-        token = config.get("SLACK_BOT_TOKEN", "token")
 
-    except Exception as e:
-        msg = "Please set the 'SLACK_BOT_TOKEN'"
-        raise KeyError(msg) from e
+def find_paper(papers, title):
+    print("Try to find", title)
+    for paper in papers:
+        print(paper["title"])
+        if paper["title"][0] == title:
+            return paper
 
-    dep, diff_dep = _get_new_dep(cache_dir)
+    raise ValueError(f"Could not find paper with title {title}")
 
-    client = WebClient(token=token)
 
-    for title, pub in diff_dep.items():
+def get_journal(res):
+    if "container-title" in res:
+        return res["container-title"][0]
+    if "short-container-title" in res:
+        return res["short-container-title"][0]
+    return "Unknown"
 
-        full_pub = pub.fill()
 
-        text = (
-            ":tada:*New publication by ComPhy team members!*\n"
-            ":star::confetti_ball::star::confetti_ball:\n"
-            f"*{title}* by _{full_pub.authors}_ "
-        )
-        if pub.bib.citation:
-            text += f"published in _{pub.bib.citation}_"
+# @app.command(help="List new publications for the department")
+# def list_new_dep_publications(
+#     overwrite: bool = False,
+#     add_authors: bool = True,
+#     cache_dir: str = config.DEFAULT_CACHE_DIR,
+# ):
+#     dep, diff_dep = _get_new_dep(cache_dir)
+#     table = Table(title="New publications")
+#     table.add_column("Title", style="cyan")
+#     if add_authors:
+#         table.add_column("Authors", style="magenta")
+#     table.add_column("Journal", style="green")
+#     for title, pub in diff_dep.items():
+#         if add_authors:
+#             full_pub = pub.fill()
+#             table.add_row(title, full_pub.authors, pub.bib.citation)
+#         else:
+#             table.add_row(title, pub.bib.citation)
 
-        client.chat_postMessage(
-            channel=f"#{channel}",
-            text=text,
-            blocks=[
-                {
-                    "type": "section",
-                    "text": {"type": "mrkdwn", "text": text},
-                },
-                {"type": "divider", "block_id": "divider1"},
-            ],
-        )
+#     console = Console()
+#     console.print(table)
 
-    if overwrite:
-        utils.dump_json(dep.dict(), publications_file(cache_dir))
+#     if overwrite:
+#         utils.dump_json(dep.dict(), publications_file(cache_dir))
+
+
+# @app.command(help="Post new publications for the department to Slack")
+# def post_slack_new_dep_publications(
+#     channel: str,
+#     overwrite: bool = False,
+#     cache_dir: str = config.DEFAULT_CACHE_DIR,
+# ):
+#     try:
+#         from slack_sdk import WebClient
+#     except ImportError as e:
+#         msg = "Please install slack_sdg: 'pip install slack_sdk"
+#         raise ImportError(msg) from e
+
+#     config = configparser.ConfigParser()
+#     if token := os.getenv("SLACK_BOT_TOKEN", ""):
+#         config["SLACK_BOT_TOKEN"] = {"token": token}
+#     else:
+#         config.read([config.CONFIG_PATH, Path(cache_dir) / "config"])
+
+#     try:
+#         token = config.get("SLACK_BOT_TOKEN", "token")
+
+#     except Exception as e:
+#         msg = "Please set the 'SLACK_BOT_TOKEN'"
+#         raise KeyError(msg) from e
+
+#     dep, diff_dep = _get_new_dep(cache_dir)
+
+#     client = WebClient(token=token)
+
+#     for title, pub in diff_dep.items():
+#         full_pub = pub.fill()
+
+#         text = (
+#             ":tada:*New publication by ComPhy team members!*\n"
+#             ":star::confetti_ball::star::confetti_ball:\n"
+#             f"*{title}* by _{full_pub.authors}_ "
+#         )
+#         if pub.bib.citation:
+#             text += f"published in _{pub.bib.citation}_"
+
+#         client.chat_postMessage(
+#             channel=f"#{channel}",
+#             text=text,
+#             blocks=[
+#                 {
+#                     "type": "section",
+#                     "text": {"type": "mrkdwn", "text": text},
+#                 },
+#                 {"type": "divider", "block_id": "divider1"},
+#             ],
+#         )
+
+#     if overwrite:
+#         utils.dump_json(dep.dict(), publications_file(cache_dir))
