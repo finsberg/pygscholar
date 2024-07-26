@@ -7,7 +7,7 @@ class PublicationFactory(ModelFactory):
 
 
 class AuthorFactory(ModelFactory):
-    __model__ = pygscholar.Author
+    __model__ = pygscholar.author.Author
 
 
 class AuthorInfoFactory(ModelFactory):

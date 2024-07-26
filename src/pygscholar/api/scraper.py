@@ -1,10 +1,6 @@
 from typing import Any
 from concurrent.futures import ThreadPoolExecutor
 from structlog import get_logger
-from selenium import webdriver
-
-# from selenium_stealth import stealth
-# import chromedriver_binary
 from selectolax.lexbor import LexborHTMLParser, LexborNode
 from scholarly._navigator import Navigator
 
@@ -95,9 +91,9 @@ def process_article(
         for key, value in _publication_fields.items()
     }
     try:
-        article_dict[
-            "link"
-        ] = f"https://scholar.google.com{article.css_first('.gsc_a_at').attrs['href']}"
+        article_dict["link"] = (
+            f"https://scholar.google.com{article.css_first('.gsc_a_at').attrs['href']}"
+        )
     except AttributeError:
         article_dict["link"] = None
 

@@ -265,6 +265,7 @@ def list_author_publications(
 ):
     authors_file = Path(cache_dir).joinpath("authors.json")
     authors = utils.load_json(authors_file)
+
     if name not in authors:
         _name = name
         name = get_closest_name(name, authors.keys())

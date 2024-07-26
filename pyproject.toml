@@ -27,8 +27,6 @@ dependencies = [
     "structlog",
     "typer",
     "selectolax",
-    "selenium-stealth",
-    "chromedriver-binary-auto",
 ]
 
 [project.readme]
