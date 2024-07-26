@@ -5,7 +5,6 @@ from pathlib import Path
 
 
 def load_json(fname):
-
     d = {}
     if Path(fname).is_file():
         with open(fname, "r") as f:
