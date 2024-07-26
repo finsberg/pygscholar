@@ -6,9 +6,8 @@ def test_author_diff_with_one_new():
     author_old = factory.AuthorFactory.build()
     new_pub = factory.PublicationFactory.build()
     author_new = pygscholar.Author(
-        name=author_old.name,
-        scholar_id=author_old.scholar_id,
-        publications=author_old.publications + (new_pub,),
+        info=author_old.info,
+        publications=tuple(author_old.publications) + (new_pub,),
     )
     new_pubs = pygscholar.author.author_pub_diff(author_new, author_old)
     assert len(new_pubs) == 1
@@ -20,14 +19,12 @@ def test_author_diff_with_one_new_and_one_new_old():
     new_pub = factory.PublicationFactory.build()
     old_new_pub = factory.PublicationFactory.build()
     author_new = pygscholar.Author(
-        name=author_old.name,
-        scholar_id=author_old.scholar_id,
-        publications=author_old.publications + (new_pub,),
+        info=author_old.info,
+        publications=tuple(author_old.publications) + (new_pub,),
     )
     author_old = pygscholar.Author(
-        name=author_old.name,
-        scholar_id=author_old.scholar_id,
-        publications=author_old.publications + (old_new_pub,),
+        info=author_old.info,
+        publications=tuple(author_old.publications) + (old_new_pub,),
     )
     new_pubs = pygscholar.author.author_pub_diff(author_new, author_old)
     assert len(new_pubs) == 1

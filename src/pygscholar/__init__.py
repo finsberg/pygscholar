@@ -7,7 +7,7 @@ from . import utils
 from . import config
 from . import api
 from . import cache
-from .author import Author
+from .author import Author, AuthorInfo
 from .department import Department
 
 # from .publication import FullPublication
@@ -24,7 +24,7 @@ __program_name__ = meta["Name"]
 __all__ = [
     "Author",
     "Publication",
-    # "FullPublication",
+    "AuthorInfo",
     "Department",
     "author",
     "publication",

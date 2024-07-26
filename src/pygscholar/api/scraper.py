@@ -2,9 +2,11 @@ from typing import Any
 from concurrent.futures import ThreadPoolExecutor
 from structlog import get_logger
 from selenium import webdriver
-from selenium_stealth import stealth
-import chromedriver_binary
+
+# from selenium_stealth import stealth
+# import chromedriver_binary
 from selectolax.lexbor import LexborHTMLParser, LexborNode
+from scholarly._navigator import Navigator
 
 from ..author import AuthorInfo, Author
 from ..publication import Publication
@@ -50,42 +52,14 @@ def to_publication(item: dict[str, Any]) -> Publication:
     return Publication(**{k: v for k, v in kwargs.items() if v is not None})
 
 
-def setup_driver() -> webdriver.Chrome:
-    logger.debug("Setting up driver")
-    options = webdriver.ChromeOptions()
-    options.add_argument("--headless")
-    options.add_argument("--no-sandbox")
-    options.add_argument("--disable-dev-shm-usage")
-
-    options.add_experimental_option("excludeSwitches", ["enable-automation", "enable-logging"])
-    options.add_experimental_option("useAutomationExtension", False)
-
-    # See https://stackoverflow.com/questions/72111139/this-version-of-chromedriver-only-supports-chrome-version-102
-    service = webdriver.ChromeService(chromedriver_binary.chromedriver_filename)
-    driver = webdriver.Chrome(service=service, options=options)
-    driver.implicitly_wait(1)
-
-    stealth(
-        driver,
-        languages=["en-US", "en"],
-        vendor="Google Inc.",
-        platform="Win32",
-        webgl_vendor="Intel Inc.",
-        renderer="Intel Iris OpenGL Engine",
-        fix_hairline=True,
-    )
-
-    return driver
-
-
-def get_extra_article_info(link: str | None, driver: webdriver.Chrome) -> dict[str, Any]:
+def get_extra_article_info(link: str | None, driver: Navigator) -> dict[str, Any]:
     logger.debug(f"Getting extra info for {link}")
 
     if link is None:
         return {}
 
-    driver.get(link)
-    parser = LexborHTMLParser(driver.page_source)
+    page_source = driver._get_page(link)
+    parser = LexborHTMLParser(page_source)
 
     fields = [g.text() for g in parser.css(".gsc_oci_field")]
     values = [g.text() for g in parser.css(".gsc_oci_value")]
@@ -111,19 +85,19 @@ _publication_fields = {
 def process_article(
     article: LexborNode,
     full: bool = True,
-    driver: webdriver.Chrome | None = None,
+    driver: Navigator | None = None,
 ) -> dict[str, Any]:
     if driver is None:
-        driver = setup_driver()
+        driver = Navigator()
 
     article_dict = {
         value: getattr(article.css_first(key), "text", lambda: None)()
         for key, value in _publication_fields.items()
     }
     try:
-        article_dict["link"] = (
-            f"https://scholar.google.com{article.css_first('.gsc_a_at').attrs['href']}"
-        )
+        article_dict[
+            "link"
+        ] = f"https://scholar.google.com{article.css_first('.gsc_a_at').attrs['href']}"
     except AttributeError:
         article_dict["link"] = None
 
@@ -133,20 +107,20 @@ def process_article(
 
 
 def extract_all_articles(
-    scholar_id: str, full: bool = True, driver: webdriver.Chrome | None = None
+    scholar_id: str, full: bool = True, driver: Navigator | None = None
 ) -> list[dict[str, Any]]:
     logger.debug(f"Extracting all articles for {scholar_id}")
     if driver is None:
-        driver = setup_driver()
+        driver = Navigator()
     page_num = 0
     articles = []
     EOF = False
 
     while not EOF:
-        driver.get(
+        page_source = driver._get_page(
             f"https://scholar.google.com/citations?user={scholar_id}&hl=en&gl=us&cstart={page_num}&pagesize=100"
         )
-        parser = LexborHTMLParser(driver.page_source)
+        parser = LexborHTMLParser(page_source)
 
         if full:
             # Use ThreadPoolExecutor to speed up the process
@@ -182,13 +156,15 @@ def extract_co_authors(parser: LexborHTMLParser) -> list[dict[str, str]]:
     return co_authors
 
 
-def extract_author_info(scholar_id: str, driver: webdriver.Chrome | None = None) -> dict[str, Any]:
+def extract_author_info(scholar_id: str, driver: Navigator | None = None) -> dict[str, Any]:
     logger.debug("Extracting author info")
     if driver is None:
-        driver = setup_driver()
+        driver = Navigator()
 
-    driver.get(f"https://scholar.google.com/citations?user={scholar_id}&hl=en&gl=us&pagesize=100")
-    parser = LexborHTMLParser(driver.page_source)
+    page_source = driver._get_page(
+        f"https://scholar.google.com/citations?user={scholar_id}&hl=en&gl=us&pagesize=100"
+    )
+    parser = LexborHTMLParser(page_source)
 
     info: dict[str, Any] = {
         "info": {},
@@ -219,18 +195,18 @@ def extract_author_info(scholar_id: str, driver: webdriver.Chrome | None = None)
     return info
 
 
-def search_author(name: str, driver: webdriver.Chrome | None = None) -> list[AuthorInfo]:
+def search_author(name: str, driver: Navigator | None = None) -> list[AuthorInfo]:
     logger.info(f"Searching for author {name}")
     if driver is None:
-        driver = setup_driver()
+        driver = Navigator()
 
     query = name.lower().replace(" ", "+")
 
-    driver.get(
+    page_source = driver._get_page(
         f"https://scholar.google.com/citations?view_op=search_authors&hl=en&mauthors={query}"
     )
 
-    parser = LexborHTMLParser(driver.page_source)
+    parser = LexborHTMLParser(page_source)
     authors = []
     for author in parser.css(".gs_ai_t"):
         name = author.css_first(".gs_ai_name").text()
@@ -256,7 +232,7 @@ def search_author(name: str, driver: webdriver.Chrome | None = None) -> list[Aut
 
 
 def get_author(
-    name: str, scholar_id: str = "", driver: webdriver.Chrome | None = None
+    name: str, scholar_id: str = "", driver: Navigator | None = None
 ) -> AuthorInfo | None:
     logger.info(f"Get author info for {name}")
     authors = search_author(name, driver=driver)
@@ -273,7 +249,7 @@ def get_author(
     return None
 
 
-def update_author_info(author: AuthorInfo, driver: webdriver.Chrome) -> AuthorInfo:
+def update_author_info(author: AuthorInfo, driver: Navigator) -> AuthorInfo:
     logger.info(f"Updating author info for {author.name}")
     info = extract_author_info(author.scholar_id, driver=driver)
     kwargs = author.dict()
@@ -285,10 +261,10 @@ def search_author_with_publications(
     name: str,
     scholar_id: str = "",
     full: bool = False,
-    driver: webdriver.Chrome | None = None,
+    driver: Navigator | None = None,
 ) -> Author:
     if driver is None:
-        driver = setup_driver()
+        driver = Navigator()
 
     author = get_author(name, scholar_id, driver=driver)
 

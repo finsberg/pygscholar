@@ -11,26 +11,32 @@ from typer.testing import CliRunner
 runner = CliRunner(mix_stderr=False)
 
 
-@pytest.mark.parametrize("backend", ["scholarly", "scraper", ""])
-def test_add_author_simple_scholarly(tmpdir, backend):
-    author = factory.AuthorInfoFactory.build()
-
+def create_args(
+    author: pygscholar.AuthorInfo, backend: pygscholar.api.APIBackend, cache_dir: str
+) -> tuple[list[str], pygscholar.api.APIBackend]:
     args = [
         "add-author",
         author.name,
         "--scholar-id",
         author.scholar_id,
         "--cache-dir",
-        tmpdir,
+        str(cache_dir),
     ]
-    if backend != "":
-        args += [
-            "--backend",
-            backend,
-        ]
-    else:
-        # Just for the mock
-        backend = "scraper"
+    if backend == "":
+        backend = pygscholar.api.APIBackend.SCRAPER
+
+    args += [
+        "--backend",
+        str(backend),
+    ]
+
+    return args, backend
+
+
+@pytest.mark.parametrize("backend", ["scholarly", "scraper", ""])
+def test_add_author_simple_scholarly(tmpdir, backend):
+    author = factory.AuthorInfoFactory.build()
+    args, backend = create_args(author, backend, tmpdir)
 
     with mock.patch(f"pygscholar.api.{backend}.search_author") as m:
         m.return_value = [author]
@@ -47,36 +53,9 @@ def test_add_author_simple_scholarly(tmpdir, backend):
 @pytest.mark.parametrize("backend", ["scholarly", "scraper", ""])
 def test_add_author_with_name_that_already_exist(tmpdir, backend):
     author = factory.AuthorInfoFactory.build()
-
-    args = [
-        "add-author",
-        author.name,
-        "--scholar-id",
-        author.scholar_id,
-        "--cache-dir",
-        tmpdir,
-    ]
-    # Add author with same name but different scholar id
-    args2 = [
-        "add-author",
-        author.name,
-        "--scholar-id",
-        "23432refw",
-        "--cache-dir",
-        tmpdir,
-    ]
-    if backend != "":
-        args += [
-            "--backend",
-            backend,
-        ]
-        args2 += [
-            "--backend",
-            backend,
-        ]
-    else:
-        # Just for the mock
-        backend = "scraper"
+    args, backend = create_args(author, backend, tmpdir)
+    args2, _ = create_args(author, backend, tmpdir)
+    args2[3] = "23432refw"  # Change scholar id
 
     with mock.patch(f"pygscholar.api.{backend}.search_author") as m:
         m.return_value = [author]
@@ -91,38 +70,24 @@ def test_add_author_with_name_that_already_exist(tmpdir, backend):
 def test_add_author_with_scholar_id_that_already_exist(tmpdir, backend):
     author = factory.AuthorInfoFactory.build()
 
-    args = [
-        "add-author",
-        author.name,
-        "--scholar-id",
-        author.scholar_id,
-        "--cache-dir",
-        tmpdir,
-    ]
-    if backend != "":
-        args += [
-            "--backend",
-            backend,
-        ]
-    else:
-        # Just for the mock
-        backend = "scraper"
+    args, backend = create_args(author, backend, tmpdir)
 
     with mock.patch(f"pygscholar.api.{backend}.search_author") as m:
         m.return_value = [author]
 
         result = runner.invoke(app, args)
+        args[1] = "Another name"
         result = runner.invoke(app, args)
 
     assert result.exit_code == 102
     assert "There is already an author with the provided scholar id" in result.stderr
 
 
-def test_list_author(tmpdir):
-    name1 = "John Snow"
-    scholar_id1 = "12345"
-    name2 = "John von Neumann"
-    scholar_id2 = "42"
+@pytest.mark.parametrize("backend", ["scholarly", "scraper", ""])
+def test_list_author(tmpdir, backend):
+    author1 = factory.AuthorInfoFactory.build()
+    author2 = factory.AuthorInfoFactory.build()
+    args1, backend = create_args(author1, "")
     with mock.patch("pygscholar.api.scholarly.get_author") as m:
         m.side_effect = MaxTriesExceededException
         runner.invoke(
