@@ -4,20 +4,15 @@ Command line interface for pygscholar. You can also set the environment variable
 
 """
 
-import difflib
+import json
 from pathlib import Path
-from typing import List
 from typing import Optional
-from typing import Protocol
-from typing import Sequence
 
 import typer
 from rich.console import Console
 from rich.table import Table
 from scholarly import MaxTriesExceededException
 
-from . import utils
-from .publication import Publication
 
 from . import api
 from . import config
@@ -147,6 +142,7 @@ def add_author(
 
         author = author_results[0]
         name = author.name
+        typer.echo(f"Adding author {name}")
 
         if scholar_id == "":
             scholar_id = author.scholar_id
@@ -166,25 +162,19 @@ def add_author(
         f"Successfully added author with name {name} and scholar id {scholar_id}",
     )
 
-
-def get_closest_name(name: str, names: Sequence[str]):
-    try:
-        closest_name = difflib.get_close_matches(name, names)[0]
-    except IndexError as e:
-        all_names = "\n".join(names)
-
-        raise ValueError(
-            f"Unable to find name '{name}'. Possible options are \n{all_names}",
-        ) from e
-    return closest_name
+    typer.echo("Search for publications. This can take some time")
+    author_with_pubs = api.search_author_with_publications(
+        name=name, scholar_id=author.scholar_id, full=False, backend=backend
+    )
+    cache.save_author(author=author_with_pubs, cache_dir=cache_dir)
 
 
 @app.command(help="Remove author")
 def remove_author(name: str, cache_dir: str = config.DEFAULT_CACHE_DIR):
-    authors_file = Path(cache_dir).joinpath("authors.json")
-    authors = utils.load_json(authors_file)
+    authors_file = Path(cache_dir) / "authors.json"
+    authors = json.loads(authors_file.read_text())
     if name not in authors:
-        closest_name = get_closest_name(name, authors.keys())
+        closest_name = api.get_closest_name(name, authors.keys())
         typer.echo(
             f"Could not find author with name '{name}'. Did you mean '{closest_name}'?",
             err=True,
@@ -192,7 +182,7 @@ def remove_author(name: str, cache_dir: str = config.DEFAULT_CACHE_DIR):
         raise typer.Exit(103)
 
     authors.pop(name)
-    utils.dump_json(authors, authors_file)
+    authors_file.write_text(json.dumps(authors, indent=4))
     typer.echo(f"Successfully removed author with name {name}")
 
 
@@ -214,43 +204,16 @@ def print_publications(publications, sort_by_citations, add_authors, name):
         except ValueError:
             year = "Unknown"
         if add_authors:
-            full_pub = pub.fill()
+            if pub.authors == "":
+                full_pub = pub.fill()
+            else:
+                full_pub = pub
             table.add_row(pub.title, full_pub.authors, year, str(pub.num_citations))
         else:
             table.add_row(pub.title, year, str(pub.num_citations))
 
     console = Console()
     console.print(table)
-
-
-class PublicationObject(Protocol):
-    def topk_cited(self, k: int) -> List[Publication]: ...
-
-    def topk_age(self, k: int) -> List[Publication]: ...
-
-    def topk_cited_not_older_than(self, k: int, age: int) -> List[Publication]: ...
-
-    def topk_age_not_older_than(self, k: int, age: int) -> List[Publication]: ...
-
-
-def extract_correct_publications(
-    obj: PublicationObject,
-    sort_by_citations: bool,
-    max_age: Optional[int],
-    n: int,
-) -> List[Publication]:
-    if sort_by_citations:
-        if max_age is None:
-            publications = obj.topk_cited(k=n)
-        else:
-            publications = obj.topk_cited_not_older_than(k=n, age=max_age)
-    else:
-        if max_age is None:
-            publications = obj.topk_age(k=n)
-        else:
-            publications = obj.topk_age_not_older_than(k=n, age=max_age)
-
-    return publications
 
 
 @app.command(help="List authors publications")
@@ -260,15 +223,51 @@ def list_author_publications(
     sort_by_citations: bool = True,
     add_authors: bool = False,
     max_age: Optional[int] = None,
+    update: bool = False,
+    overwrite: bool = False,
     cache_dir: str = config.DEFAULT_CACHE_DIR,
     backend: api.APIBackend = api.APIBackend.SCRAPER,
 ):
-    authors_file = Path(cache_dir).joinpath("authors.json")
-    authors = utils.load_json(authors_file)
+    authors = cache.load_authors(cache_dir)
 
     if name not in authors:
         _name = name
-        name = get_closest_name(name, authors.keys())
+        name = api.get_closest_name(name, authors.keys())
+        typer.echo(
+            f"Could not find author with name '{_name}'. Will use '{name}' instead",
+        )
+
+    if not update:
+        author = cache.load_author(authors[name], cache_dir=cache_dir)
+    else:
+        author = api.search_author_with_publications(
+            name=name, scholar_id=authors[name], full=False, backend=backend
+        )
+        if overwrite:
+            cache.save_author(author=author, cache_dir=cache_dir)
+
+    if author is None:
+        typer.echo(f"Could not find author with name '{name}'", err=True)
+        raise typer.Exit(105)
+
+    publications = api.extract_correct_publications(author, sort_by_citations, max_age, n)
+    print_publications(publications, sort_by_citations, add_authors, name)
+
+
+@app.command(help="List new authors publications")
+def list_new_author_publications(
+    name: str,
+    overwrite: bool = False,
+    sort_by_citations: bool = True,
+    add_authors: bool = False,
+    cache_dir: str = config.DEFAULT_CACHE_DIR,
+    backend: api.APIBackend = api.APIBackend.SCRAPER,
+):
+    authors = cache.load_authors(cache_dir=cache_dir)
+
+    if name not in authors:
+        _name = name
+        name = api.get_closest_name(name, authors.keys())
         typer.echo(
             f"Could not find author with name '{_name}'. Will use '{name}' instead",
         )
@@ -280,8 +279,21 @@ def list_author_publications(
         full=False,
     )
 
-    publications = extract_correct_publications(author, sort_by_citations, max_age, n)
-    print_publications(publications, sort_by_citations, add_authors, name)
+    old_author = cache.load_author(author.scholar_id, cache_dir=cache_dir)
+    if old_author is not None:
+        old_titles = {pub.title for pub in old_author.publications}
+    else:
+        typer.echo(f"Could not find author with name '{name}'", err=True)
+        old_titles = set()
+
+    new_publications = [pub for pub in author.publications if pub.title not in old_titles]
+    print_publications(new_publications, sort_by_citations, add_authors, name)
+
+    if overwrite:
+        cache.save_author(
+            author=author,
+            cache_dir=cache_dir,
+        )
 
 
 # @app.command(help="List department publications")
@@ -292,16 +304,11 @@ def list_author_publications(
 #     max_age: Optional[int] = None,
 #     cache_dir: str = config.DEFAULT_CACHE_DIR,
 # ):
-#     authors_file = Path(cache_dir).joinpath("authors.json")
-#     authors = utils.load_json(authors_file)
+#     authors = cache.load_authors(cache_dir=cache_dir)
 #     dep = scholar_api.extract_scholar_publications(authors)
 
 #     publications = extract_correct_publications(dep, sort_by_citations, max_age, n)
 #     print_publications(publications, sort_by_citations, add_authors, "department")
-
-
-def publications_file(cache_dir) -> Path:
-    return Path(cache_dir).joinpath("publications.json")
 
 
 # def _get_new_dep(cache_dir):
@@ -315,34 +322,34 @@ def publications_file(cache_dir) -> Path:
 #     return dep, department.department_diff(dep, old_dep, fill=False, only_new=True)
 
 
-def extract_date(res):
-    for key in ["published-online", "published"]:
-        if key not in res:
-            continue
-        x = res[key]["date-parts"][0]
-        while len(x) < 3:
-            x.append(1)
-        return "-".join(map(str, x))
+# def extract_date(res):
+#     for key in ["published-online", "published"]:
+#         if key not in res:
+#             continue
+#         x = res[key]["date-parts"][0]
+#         while len(x) < 3:
+#             x.append(1)
+#         return "-".join(map(str, x))
 
-    return "0-0-0"
-
-
-def find_paper(papers, title):
-    print("Try to find", title)
-    for paper in papers:
-        print(paper["title"])
-        if paper["title"][0] == title:
-            return paper
-
-    raise ValueError(f"Could not find paper with title {title}")
+#     return "0-0-0"
 
 
-def get_journal(res):
-    if "container-title" in res:
-        return res["container-title"][0]
-    if "short-container-title" in res:
-        return res["short-container-title"][0]
-    return "Unknown"
+# def find_paper(papers, title):
+#     print("Try to find", title)
+#     for paper in papers:
+#         print(paper["title"])
+#         if paper["title"][0] == title:
+#             return paper
+
+#     raise ValueError(f"Could not find paper with title {title}")
+
+
+# def get_journal(res):
+#     if "container-title" in res:
+#         return res["container-title"][0]
+#     if "short-container-title" in res:
+#         return res["short-container-title"][0]
+#     return "Unknown"
 
 
 # @app.command(help="List new publications for the department")

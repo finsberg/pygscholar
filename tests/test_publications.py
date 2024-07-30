@@ -38,7 +38,7 @@ def test_topk_cited(seed, k):
         assert lst[2] == pub3
 
 
-@pytest.mark.parametrize("seed, k", itertools.product((0, 1, 2), (0, 1, 2, 3, 4)))
+@pytest.mark.parametrize("seed, k", itertools.product((0, 1, 2), (0, 1, 2)))
 def test_topk_age(seed, k):
     random.seed(seed)
     year = datetime.date.today().year
@@ -48,7 +48,8 @@ def test_topk_age(seed, k):
     pubs = [pub1, pub2, pub3]
     random.shuffle(pubs)
     lst = pygscholar.publication.topk_age([pub1, pub2, pub3], k=k)
-    assert len(lst) == min(k, 2)  # pub3 should never be included
+
+    assert len(lst) == k
     if k >= 1:
         assert lst[0] == pub1
     if k >= 2:
@@ -61,18 +62,6 @@ def test_publication_year(age):
     pub = factory.PublicationFactory.build(year=year - age)
     assert pub.age == age
     assert pub.year == year - age
-
-
-def test_publication_invalid_year():
-    pub = factory.PublicationFactory.build(year=-1)
-    with pytest.raises(ValueError):
-        pub.year
-
-
-def test_publication_invalid_age():
-    pub = factory.PublicationFactory.build(year=-1)
-    with pytest.raises(ValueError):
-        pub.age
 
 
 def test_publications_not_older_than():

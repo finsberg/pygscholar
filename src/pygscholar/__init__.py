@@ -3,7 +3,6 @@ from importlib.metadata import metadata
 from . import author
 from . import department
 from . import publication
-from . import utils
 from . import config
 from . import api
 from . import cache

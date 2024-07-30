@@ -8,14 +8,12 @@ def test_dep_diff():
     new_pub_common = factory.PublicationFactory.build()
     new_pub_author1 = factory.PublicationFactory.build()
     author1_new = pygscholar.Author(
-        name=author1_old.name,
-        scholar_id=author1_old.scholar_id,
-        publications=author1_old.publications + (new_pub_common, new_pub_author1),
+        info=author1_old.info,
+        publications=author1_old.publications + [new_pub_common, new_pub_author1],
     )
     author2_new = pygscholar.Author(
-        name=author2_old.name,
-        scholar_id=author2_old.scholar_id,
-        publications=author2_old.publications + (new_pub_common,),
+        info=author2_old.info,
+        publications=author2_old.publications + [new_pub_common],
     )
     department_old = pygscholar.Department(authors=(author1_old, author2_old))
     department_new = pygscholar.Department(authors=(author1_new, author2_new))
@@ -30,6 +28,3 @@ def test_dep_diff():
     assert new_pub_author1.title in new_pubs
     assert new_pubs[new_pub_common.title] == new_pub_common
     assert new_pubs[new_pub_author1.title] == new_pub_author1
-
-    # assert len(new_pubs) == 1
-    # assert new_pubs[0] == new_pub

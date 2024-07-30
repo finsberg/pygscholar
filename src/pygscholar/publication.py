@@ -7,6 +7,7 @@ from typing import Sequence
 from pydantic import BaseModel
 from structlog import get_logger
 
+
 logger = get_logger()
 
 
@@ -29,6 +30,11 @@ class Publication(BaseModel):
     def age(self) -> int:
         year = datetime.date.today().year
         return year - self.year
+
+    def fill(self) -> "Publication":
+        from .api import fill_publication
+
+        return fill_publication(self)
 
 
 def remove_duplicate_publications(
@@ -96,100 +102,3 @@ def publications_not_older_than(
         except ValueError:
             continue
     return tuple(remove_duplicate_publications(pubs))
-
-
-# class ScholarlyFullPublicationBib(BaseModel):
-#     title: str
-#     author: str
-#     abstract: str = ""
-#     journal: str = ""
-#     citation: str
-#     pub_year: int = -1
-
-
-# class ScholarlyFullPublication(BaseModel):
-#     bib: ScholarlyFullPublicationBib
-#     eprint_url: str = ""
-
-#     num_citations: int
-#     container_type: str = "Publication"
-#     source: publication_parser.PublicationSource
-#     author_pub_id: str
-
-#     @property
-#     def title(self) -> str:
-#         return self.bib.title
-
-#     @property
-#     def journal(self) -> str:
-#         return self.bib.citation
-
-#     @property
-#     def year(self) -> int:
-#         if self.bib.pub_year == -1:
-#             raise ValueError(f"Invalid year for {self.title}")
-#         return self.bib.pub_year
-
-#     @property
-#     def age(self) -> int:
-#         year = datetime.date.today().year
-#         return year - self.year
-
-#     @property
-#     def authors(self) -> str:
-#         return self.bib.author
-
-#     def __hash__(self) -> int:
-#         return hash(self.title)
-
-#     def print(self):
-#         pass
-
-
-# class ScholarlyPublicationBib(BaseModel):
-#     title: str
-#     citation: str
-#     pub_year: int = -1
-
-
-# class ScholarlyPublication(BaseModel):
-#     bib: ScholarlyPublicationBib
-#     num_citations: int
-#     container_type: str = "Publication"
-#     source: publication_parser.PublicationSource
-#     author_pub_id: str
-
-#     @property
-#     def title(self) -> str:
-#         return self.bib.title
-
-#     @property
-#     def journal(self) -> str:
-#         return self.bib.citation
-
-#     @property
-#     def year(self) -> int:
-#         if self.bib.pub_year == -1:
-#             raise ValueError(f"Invalid year for {self.title}")
-#         return self.bib.pub_year
-
-#     @property
-#     def age(self) -> int:
-#         year = datetime.date.today().year
-#         return year - self.year
-
-#     def __hash__(self) -> int:
-#         return hash(self.title)
-
-#     def fill(self) -> ScholarlyFullPublication:
-#         return ScholarlyFullPublication(**scholarly.fill(self.dict()))
-
-
-# class ScraperPublication(BaseModel):
-#     title: str
-#     authors: str
-#     publication: str
-#     cited_by_count: str
-#     publication_year: str
-#     link: str
-#     extra: ScraperExtra

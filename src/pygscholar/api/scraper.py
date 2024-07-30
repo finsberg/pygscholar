@@ -48,8 +48,11 @@ def to_publication(item: dict[str, Any]) -> Publication:
     return Publication(**{k: v for k, v in kwargs.items() if v is not None})
 
 
-def get_extra_article_info(link: str | None, driver: Navigator) -> dict[str, Any]:
+def get_extra_article_info(link: str | None, driver: Navigator | None = None) -> dict[str, Any]:
     logger.debug(f"Getting extra info for {link}")
+
+    if driver is None:
+        driver = Navigator()
 
     if link is None:
         return {}
@@ -279,3 +282,13 @@ def search_author_with_publications(
     info = update_author_info(author, driver=driver)
 
     return Author(info=info, publications=publications)
+
+
+def fill_publication(publication: Publication, driver: Navigator | None = None) -> Publication:
+    if driver is None:
+        driver = Navigator()
+
+    pub = get_extra_article_info(publication.scholar_url, driver=driver)
+    kwargs = publication.dict()
+    kwargs["extra"] = pub
+    return to_publication(kwargs)

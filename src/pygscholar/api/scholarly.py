@@ -98,6 +98,13 @@ def search_author_with_publications(name: str, scholar_id: str = "", full: bool 
 #     return Department(authors=authors)
 
 
+def fill_publication(publication: Publication) -> Publication:
+    try:
+        return to_publication(next(scholarly.search_pubs(publication.title)), full=True)
+    except StopIteration:
+        return publication
+
+
 def search_author(name: str) -> list[AuthorInfo]:
     query = scholarly.search_author(name)
     authors = []
