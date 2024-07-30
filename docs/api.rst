@@ -25,12 +25,24 @@ publication
 .. automodule:: pygscholar.publication
     :members:
 
-scholar_api
+api
 -----------
-.. automodule:: pygscholar.scholar_api
+.. automodule:: pygscholar.api
     :members:
 
-utils
+.. automodule:: pygscholar.api.scraper
+    :members:
+
+.. automodule:: pygscholar.api.scholarly
+    :members:
+
+
+cache
 -----
-.. automodule:: pygscholar.utils
+.. automodule:: pygscholar.cache
+    :members:
+
+config
+------
+.. automodule:: pygscholar.config
     :members:
