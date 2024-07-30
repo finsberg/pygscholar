@@ -1,15 +1,12 @@
-from typing import Dict
-from typing import List
+from __future__ import annotations
 from typing import Sequence
-from typing import Set
-from typing import Tuple
+
 
 from pydantic import BaseModel
 
 from .author import Author
 from .author import author_pub_diff
 
-# from .publication import ScholarlyFullPublication as FullPublication
 from .publication import most_cited
 from .publication import Publication
 from .publication import publications_not_older_than
@@ -18,7 +15,7 @@ from .publication import topk_cited
 
 
 class Department(BaseModel):
-    authors: Tuple[Author, ...] = ()
+    authors: tuple[Author, ...] = ()
 
     @property
     def publications(self):
@@ -40,7 +37,7 @@ class Department(BaseModel):
         raise RuntimeError(f"Unable to find author with scholar id '{scholar_id}'")
 
     @property
-    def names(self) -> Set[str]:
+    def names(self) -> set[str]:
         return {author.name for author in self.authors}
 
     @property
@@ -71,11 +68,11 @@ def department_diff(
     old_dep: Department,
     fill: bool = False,
     only_new: bool = False,
-) -> Dict[str, Publication]:
+) -> dict[str, Publication]:
     # FIXME: Add overload
     author_names = new_dep.names.intersection(old_dep.names)
 
-    all_pubs: List[Publication] = []
+    all_pubs: list[Publication] = []
     for name in author_names:
         new_author = new_dep.get_author_by_name(name)
         old_author = old_dep.get_author_by_name(name)

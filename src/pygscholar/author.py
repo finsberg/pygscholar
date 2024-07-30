@@ -1,4 +1,4 @@
-from typing import List
+from __future__ import annotations
 from typing import Sequence
 from typing import Any
 
@@ -7,11 +7,6 @@ from structlog import get_logger
 
 from . import publication as pub
 
-# from .publication import most_cited
-# from .publication import Publication
-# from .publication import publications_not_older_than
-# from .publication import topk_age
-# from .publication import topk_cited
 
 logger = get_logger()
 
@@ -65,15 +60,11 @@ class Author(BaseModel):
         return pub.topk_age(self.publications_not_older_than(age), k=k)
 
 
-# class ScholarlyAuthor(BaseModel, Author):
-#     publications: Tuple[pub.ScholarlyPublication, ...] = ()
-
-
 def author_pub_diff(
     new_author: Author,
     old_author: Author,
     only_new: bool = False,
-) -> List[pub.Publication]:
+) -> list[pub.Publication]:
     new_pubs = []
     old_author_publications = {p.title.lower().strip() for p in old_author.publications}
     if only_new:

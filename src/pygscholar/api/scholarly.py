@@ -10,8 +10,6 @@ from structlog import get_logger
 from ..author import Author, AuthorInfo
 from ..publication import Publication
 
-# from ..department import Department
-
 
 logger = get_logger()
 

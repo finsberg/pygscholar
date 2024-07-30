@@ -1,3 +1,4 @@
+from __future__ import annotations
 from typing import Any
 from concurrent.futures import ThreadPoolExecutor
 from structlog import get_logger
