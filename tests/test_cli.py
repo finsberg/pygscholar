@@ -236,36 +236,49 @@ def test_list_department_publications(tmpdir, backend, add_authors):
             assert pub.authors[:10] not in result.stdout
 
 
-# def test_list_dep_new_publications(tmpdir):
-#     old_author = factory.AuthorFactory.build()
+@pytest.mark.parametrize("backend", ["scholarly", "scraper"])
+def test_list_new_department_publications(tmpdir, backend):
+    author1 = factory.AuthorFactory.build()
+    author2 = factory.AuthorFactory.build()
+    new_pub = factory.PublicationFactory.build()
 
-#     authors_file = Path(tmpdir).joinpath("authors.json")
-#     pygscholar.utils.dump_json({old_author.name: old_author.scholar_id}, authors_file)
+    author_dict1 = author1.dict()
+    author_dict1["publications"] = (author_dict1["publications"][0], new_pub.dict())
+    new_author1 = pygscholar.Author(**author_dict1)
 
-#     dep = pygscholar.Department(authors=(old_author,))
-#     publications_file = Path(tmpdir).joinpath("publications.json")
-#     pygscholar.utils.dump_json(dep.dict(), publications_file)
+    author_dict2 = author2.dict()
+    author_dict2["publications"] = (author_dict2["publications"][0], new_pub.dict())
+    new_author2 = pygscholar.Author(**author_dict2)
 
-#     # Create a new publication
-#     new_pub = factory.PublicationFactory.build()
+    args1, backend = create_args(author1.info, backend, tmpdir)
+    args2, backend = create_args(author2.info, backend, tmpdir)
 
-#     author_dict = old_author.dict()
-#     author_dict["publications"] = (author_dict["publications"][0], new_pub.dict())
-#     new_author = pygscholar.Author(**author_dict)
+    with mock_add_author(author1, backend):
+        runner.invoke(app, args1)
+    with mock_add_author(author2, backend):
+        runner.invoke(app, args2)
 
-#     with mock.patch("pygscholar.api.scholarly.scholarly") as m:
-#         m.search_author = lambda name: iter([new_author.dict()])
-#         m.fill = lambda x: x
-#         result = runner.invoke(
-#             app,
-#             [
-#                 "list-new-dep-publications",
-#                 "--no-add-authors",
-#                 "--cache-dir",
-#                 tmpdir,
-#             ],
-#         )
+    def search_mock(*args, **kwargs):
+        if kwargs.get("name") == author1.info.name:
+            return new_author1
+        if kwargs.get("name") == author2.info.name:
+            return new_author2
+        raise RuntimeError("Could not find author")
 
-#     assert result.exit_code == 0
-#     assert "New publications" in result.stdout
-#     assert new_pub.title in result.stdout
+    with mock.patch("pygscholar.api.search_author_with_publications") as m2:
+        m2.side_effect = search_mock
+        result = runner.invoke(
+            app,
+            [
+                "list-new-department-publications",
+                "--cache-dir",
+                str(tmpdir),
+                "--overwrite",
+            ],
+        )
+
+    assert result.exit_code == 0
+
+    assert author_dict1["publications"][0]["title"] not in result.stdout
+    assert author_dict2["publications"][0]["title"] not in result.stdout
+    assert new_pub.title in result.stdout
