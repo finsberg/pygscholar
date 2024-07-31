@@ -17,6 +17,7 @@ from scholarly import MaxTriesExceededException
 from . import api
 from . import config
 from . import cache
+from .department import Department
 
 app = typer.Typer(help=__doc__)
 
@@ -237,9 +238,8 @@ def list_author_publications(
             f"Could not find author with name '{_name}'. Will use '{name}' instead",
         )
 
-    if not update:
-        author = cache.load_author(authors[name], cache_dir=cache_dir)
-    else:
+    author = cache.load_author(authors[name], cache_dir=cache_dir)
+    if update or author is None:
         author = api.search_author_with_publications(
             name=name, scholar_id=authors[name], full=False, backend=backend
         )
@@ -296,19 +296,31 @@ def list_new_author_publications(
         )
 
 
-# @app.command(help="List department publications")
-# def list_department_publications(
-#     n: int = 5,
-#     sort_by_citations: bool = True,
-#     add_authors: bool = False,
-#     max_age: Optional[int] = None,
-#     cache_dir: str = config.DEFAULT_CACHE_DIR,
-# ):
-#     authors = cache.load_authors(cache_dir=cache_dir)
-#     dep = scholar_api.extract_scholar_publications(authors)
+@app.command(help="List department publications")
+def list_department_publications(
+    n: int = 5,
+    sort_by_citations: bool = True,
+    add_authors: bool = False,
+    max_age: Optional[int] = None,
+    update: bool = False,
+    cache_dir: str = config.DEFAULT_CACHE_DIR,
+    backend: api.APIBackend = api.APIBackend.SCRAPER,
+):
+    authors = cache.load_authors(cache_dir=cache_dir)
 
-#     publications = extract_correct_publications(dep, sort_by_citations, max_age, n)
-#     print_publications(publications, sort_by_citations, add_authors, "department")
+    all_authors = []
+    for name, scholar_id in authors.items():
+        author = cache.load_author(scholar_id, cache_dir=cache_dir)
+        if author is None or update:
+            author = api.search_author_with_publications(
+                name=name, scholar_id=scholar_id, full=False, backend=backend
+            )
+            cache.save_author(author=author, cache_dir=cache_dir)
+        all_authors.append(author)
+
+    department = Department(authors=all_authors)
+    publications = api.extract_correct_publications(department, sort_by_citations, max_age, n)
+    print_publications(publications, sort_by_citations, add_authors, "department")
 
 
 # def _get_new_dep(cache_dir):

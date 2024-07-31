@@ -15,7 +15,7 @@ from .publication import topk_cited
 
 
 class Department(BaseModel):
-    authors: tuple[Author, ...] = ()
+    authors: list[Author]
 
     @property
     def publications(self):

@@ -4,7 +4,7 @@ import datetime
 from functools import reduce
 from typing import Sequence
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from structlog import get_logger
 
 
@@ -25,6 +25,8 @@ class Publication(BaseModel):
     pdf_url: str = ""
     scholar_url: str = ""
     date: str = ""
+
+    model_config = ConfigDict(frozen=True)
 
     @property
     def age(self) -> int:
@@ -47,6 +49,7 @@ def remove_duplicate_publications(
             continue
         titles.append(pub.title)
         uniqe_publications.append(pub)
+
     return tuple(uniqe_publications)
 
 
