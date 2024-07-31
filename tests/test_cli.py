@@ -1,131 +1,131 @@
-import tempfile
-from pathlib import Path
 from unittest import mock
+import contextlib
 
 import factory
 import pygscholar
 import pytest
 from pygscholar.cli import app
-from scholarly import MaxTriesExceededException
 from typer.testing import CliRunner
 
 runner = CliRunner(mix_stderr=False)
 
 
-@pytest.fixture
-def cache_dir():
+@contextlib.contextmanager
+def mock_add_author(author: pygscholar.author.Author, backend):
+    with mock.patch(f"pygscholar.api.{backend}.search_author") as m1:
+        m1.return_value = [author.info]
+        with mock.patch("pygscholar.api.search_author_with_publications") as m2:
+            m2.return_value = author
+            yield
 
-    with tempfile.TemporaryDirectory() as tmpdirname:
-        yield tmpdirname
+
+def create_args(
+    author: pygscholar.AuthorInfo, backend: pygscholar.api.APIBackend, cache_dir: str
+) -> tuple[list[str], pygscholar.api.APIBackend]:
+    args = [
+        "add-author",
+        author.name,
+        "--scholar-id",
+        author.scholar_id,
+        "--cache-dir",
+        str(cache_dir),
+    ]
+    if backend == "":
+        backend = pygscholar.api.APIBackend.SCRAPER
+
+    args += [
+        "--backend",
+        str(backend),
+    ]
+
+    return args, backend
 
 
-def test_add_author_simple(cache_dir):
-    name = "John Snow"
-    scholar_id = "12345"
-    with mock.patch("pygscholar.scholar_api.get_author") as m:
-        m.side_effect = MaxTriesExceededException
-        result = runner.invoke(
-            app,
-            ["add-author", name, "--scholar-id", scholar_id, "--cache-dir", cache_dir],
-        )
-    assert result.exit_code == 0
+@pytest.mark.parametrize("backend", ["scholarly", "scraper"])
+def test_add_author_simple(tmpdir, backend):
+    author = factory.AuthorFactory.build()
+    args, backend = create_args(author, backend, tmpdir)
+
+    with mock_add_author(author, backend):
+        result = runner.invoke(app, args)
+
+    assert result.exit_code == 0, result.stderr
 
     assert (
-        f"Successfully added author with name {name} and scholar id {scholar_id}"
+        f"Successfully added author with name {author.name} and scholar id {author.scholar_id}"
         in result.stdout
     )
 
 
-def test_add_author_with_name_that_already_exist(cache_dir):
-    name = "John Snow"
-    scholar_id = "12345"
-    with mock.patch("pygscholar.scholar_api.get_author") as m:
-        m.side_effect = MaxTriesExceededException
-        runner.invoke(
-            app,
-            ["add-author", name, "--scholar-id", scholar_id, "--cache-dir", cache_dir],
-        )
-        result = runner.invoke(
-            app,
-            ["add-author", name, "--scholar-id", "34141", "--cache-dir", cache_dir],
-        )
+@pytest.mark.parametrize("backend", ["scholarly", "scraper"])
+def test_add_author_with_name_that_already_exist(tmpdir, backend):
+    author = factory.AuthorFactory.build()
+    args, backend = create_args(author, backend, tmpdir)
+    args2, _ = create_args(author, backend, tmpdir)
+    args2[3] = "23432refw"  # Change scholar id
+
+    with mock_add_author(author, backend):
+        result = runner.invoke(app, args)
+        result = runner.invoke(app, args2)
+
     assert result.exit_code == 101
-    assert f"Author with name {name} already exist in database" in result.stderr
+    assert f"Author with name {author.name} already exist in database" in result.stderr
 
 
-def test_add_author_with_scholar_id_that_already_exist(cache_dir):
-    name = "John Snow"
-    scholar_id = "12345"
-    with mock.patch("pygscholar.scholar_api.get_author") as m:
-        m.side_effect = MaxTriesExceededException
-        runner.invoke(
-            app,
-            ["add-author", name, "--scholar-id", scholar_id, "--cache-dir", cache_dir],
-        )
-        result = runner.invoke(
-            app,
-            [
-                "add-author",
-                "Barbara",
-                "--scholar-id",
-                scholar_id,
-                "--cache-dir",
-                cache_dir,
-            ],
-        )
+@pytest.mark.parametrize("backend", ["scholarly", "scraper"])
+def test_add_author_with_scholar_id_that_already_exist(tmpdir, backend):
+    author = factory.AuthorFactory.build()
+
+    args, backend = create_args(author, backend, tmpdir)
+
+    with mock_add_author(author, backend):
+        result = runner.invoke(app, args)
+        args[1] = "Another name"
+        result = runner.invoke(app, args)
+
     assert result.exit_code == 102
     assert "There is already an author with the provided scholar id" in result.stderr
 
 
-def test_list_author(cache_dir):
-    name1 = "John Snow"
-    scholar_id1 = "12345"
-    name2 = "John von Neumann"
-    scholar_id2 = "42"
-    with mock.patch("pygscholar.scholar_api.get_author") as m:
-        m.side_effect = MaxTriesExceededException
-        runner.invoke(
-            app,
-            [
-                "add-author",
-                name1,
-                "--scholar-id",
-                scholar_id1,
-                "--cache-dir",
-                cache_dir,
-            ],
-        )
-        runner.invoke(
-            app,
-            [
-                "add-author",
-                name2,
-                "--scholar-id",
-                scholar_id2,
-                "--cache-dir",
-                cache_dir,
-            ],
-        )
-    result = runner.invoke(app, ["list-authors", "--cache-dir", cache_dir])
+@pytest.mark.parametrize("backend", ["scholarly", "scraper"])
+def test_list_author(tmpdir, backend):
+    author1 = factory.AuthorFactory.build()
+    author2 = factory.AuthorFactory.build()
+    args1, backend = create_args(author1, backend, tmpdir)
+    args2, backend = create_args(author2, backend, tmpdir)
+    with mock.patch(f"pygscholar.api.{backend}.search_author") as m1:
+        m1.return_value = [author1.info, author2.info]
+
+        with mock.patch("pygscholar.api.search_author_with_publications") as m2:
+            m2.return_value = author1
+            result1 = runner.invoke(app, args1)
+        with mock.patch("pygscholar.api.search_author_with_publications") as m2:
+            m2.return_value = author2
+            result2 = runner.invoke(app, args2)
+
+        result = runner.invoke(app, ["list-authors", "--cache-dir", tmpdir])
+
+    assert result1.exit_code == 0
+    assert result2.exit_code == 0
     assert result.exit_code == 0
+    assert author1.name in result.stdout
+    assert author2.name in result.stdout
+    assert author1.scholar_id in result.stdout
+    assert author2.scholar_id in result.stdout
 
-    for item in [name1, name2, scholar_id1, scholar_id2]:
-        assert item in result.stdout
 
-
-def test_list_author_publications_when_no_author_is_added(cache_dir):
+@pytest.mark.parametrize("backend", ["scholarly", "scraper"])
+def test_list_author_publications_when_no_author_is_added(tmpdir, backend):
     author = factory.AuthorFactory.build()
-    with mock.patch("pygscholar.scholar_api.scholarly") as m:
-
-        m.search_author = lambda name: iter([author.dict()])
-        m.fill = lambda x: x
+    with mock.patch(f"pygscholar.api.{backend}.search_author") as m:
+        m.return_value = []
         result = runner.invoke(
             app,
             [
                 "list-author-publications",
                 author.name,
                 "--cache-dir",
-                cache_dir,
+                tmpdir,
             ],
         )
 
@@ -135,70 +135,150 @@ def test_list_author_publications_when_no_author_is_added(cache_dir):
     )
 
 
-def test_list_author_publications(cache_dir):
+@pytest.mark.parametrize("add_authors", [False, True])
+@pytest.mark.parametrize("backend", ["scholarly", "scraper"])
+def test_list_author_publications(tmpdir, backend, add_authors):
     author = factory.AuthorFactory.build()
-    with mock.patch("pygscholar.scholar_api.scholarly") as m:
+    args1, backend = create_args(author.info, backend, tmpdir)
 
-        m.search_author = lambda name: iter([author.dict()])
-        m.fill = lambda x: x
-        runner.invoke(
-            app,
-            [
-                "add-author",
-                author.name,
-                "--cache-dir",
-                cache_dir,
-            ],
-        )
+    args = [
+        "list-author-publications",
+        author.name,
+        "--cache-dir",
+        str(tmpdir),
+        "--backend",
+        backend,
+    ]
+    if add_authors:
+        args.append("--add-authors")
+
+    with mock_add_author(author, backend):
+        runner.invoke(app, args1)
+
         result = runner.invoke(
             app,
-            [
-                "list-author-publications",
-                author.name,
-                "--cache-dir",
-                cache_dir,
-            ],
+            args,
         )
 
     assert result.exit_code == 0
+
     assert f"Publications for {author.name} (Sorted by citations)" in result.stdout
     for pub in author.publications:
-        assert pub.title in result.stdout
+        assert pub.title[:10] in result.stdout
         assert str(pub.year) in result.stdout
         assert str(pub.num_citations) in result.stdout
+        if add_authors:
+            assert pub.authors[:10] in result.stdout
 
 
-def test_list_dep_new_publications(cache_dir):
+@pytest.mark.parametrize("backend", ["scholarly", "scraper"])
+def test_list_new_author_publications(tmpdir, backend):
     old_author = factory.AuthorFactory.build()
-
-    authors_file = Path(cache_dir).joinpath("authors.json")
-    pygscholar.utils.dump_json({old_author.name: old_author.scholar_id}, authors_file)
-
-    dep = pygscholar.Department(authors=(old_author,))
-    publications_file = Path(cache_dir).joinpath("publications.json")
-    pygscholar.utils.dump_json(dep.dict(), publications_file)
-
-    # Create a new publication
     new_pub = factory.PublicationFactory.build()
 
     author_dict = old_author.dict()
     author_dict["publications"] = (author_dict["publications"][0], new_pub.dict())
     new_author = pygscholar.Author(**author_dict)
 
-    with mock.patch("pygscholar.scholar_api.scholarly") as m:
+    args, backend = create_args(old_author.info, backend, tmpdir)
 
-        m.search_author = lambda name: iter([new_author.dict()])
-        m.fill = lambda x: x
+    with mock_add_author(old_author, backend):
+        runner.invoke(app, args)
+    with mock_add_author(new_author, backend):
         result = runner.invoke(
             app,
             [
-                "list-new-dep-publications",
-                "--no-add-authors",
+                "list-new-author-publications",
+                old_author.info.name,
                 "--cache-dir",
-                cache_dir,
+                str(tmpdir),
+                "--overwrite",
+            ],
+        )
+    assert result.exit_code == 0
+    assert author_dict["publications"][0]["title"] not in result.stdout
+    assert new_pub.title in result.stdout
+
+
+@pytest.mark.parametrize("backend", ["scholarly", "scraper"])
+@pytest.mark.parametrize("add_authors", [False, True])
+def test_list_department_publications(tmpdir, backend, add_authors):
+    author1 = factory.AuthorFactory.build()
+    author2 = factory.AuthorFactory.build()
+
+    args1, backend = create_args(author1.info, backend, tmpdir)
+    args2, backend = create_args(author2.info, backend, tmpdir)
+
+    with mock_add_author(author1, backend):
+        runner.invoke(app, args1)
+    with mock_add_author(author2, backend):
+        runner.invoke(app, args2)
+
+    args = [
+        "list-department-publications",
+        "--cache-dir",
+        str(tmpdir),
+    ]
+    if add_authors:
+        args.append("--add-authors")
+
+    result = runner.invoke(app, args)
+    assert result.exit_code == 0
+
+    for pub in author1.publications + author2.publications:
+        assert pub.title[:10] in result.stdout
+        assert str(pub.year) in result.stdout
+        assert str(pub.num_citations) in result.stdout
+
+        if add_authors:
+            assert pub.authors[:10] in result.stdout
+        else:
+            assert pub.authors[:10] not in result.stdout
+
+
+@pytest.mark.parametrize("backend", ["scholarly", "scraper"])
+def test_list_new_department_publications(tmpdir, backend):
+    author1 = factory.AuthorFactory.build()
+    author2 = factory.AuthorFactory.build()
+    new_pub = factory.PublicationFactory.build()
+
+    author_dict1 = author1.dict()
+    author_dict1["publications"] = (author_dict1["publications"][0], new_pub.dict())
+    new_author1 = pygscholar.Author(**author_dict1)
+
+    author_dict2 = author2.dict()
+    author_dict2["publications"] = (author_dict2["publications"][0], new_pub.dict())
+    new_author2 = pygscholar.Author(**author_dict2)
+
+    args1, backend = create_args(author1.info, backend, tmpdir)
+    args2, backend = create_args(author2.info, backend, tmpdir)
+
+    with mock_add_author(author1, backend):
+        runner.invoke(app, args1)
+    with mock_add_author(author2, backend):
+        runner.invoke(app, args2)
+
+    def search_mock(*args, **kwargs):
+        if kwargs.get("name") == author1.info.name:
+            return new_author1
+        if kwargs.get("name") == author2.info.name:
+            return new_author2
+        raise RuntimeError("Could not find author")
+
+    with mock.patch("pygscholar.api.search_author_with_publications") as m2:
+        m2.side_effect = search_mock
+        result = runner.invoke(
+            app,
+            [
+                "list-new-department-publications",
+                "--cache-dir",
+                str(tmpdir),
+                "--overwrite",
             ],
         )
 
     assert result.exit_code == 0
-    assert "New publications" in result.stdout
+
+    assert author_dict1["publications"][0]["title"] not in result.stdout
+    assert author_dict2["publications"][0]["title"] not in result.stdout
     assert new_pub.title in result.stdout
