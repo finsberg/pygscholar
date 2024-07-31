@@ -17,7 +17,7 @@ from scholarly import MaxTriesExceededException
 from . import api
 from . import config
 from . import cache
-from .department import Department
+from .department import Department, department_diff
 
 app = typer.Typer(help=__doc__)
 
@@ -323,71 +323,42 @@ def list_department_publications(
     print_publications(publications, sort_by_citations, add_authors, "department")
 
 
-# def _get_new_dep(cache_dir):
-#     authors_file = Path(cache_dir).joinpath("authors.json")
-#     authors = utils.load_json(authors_file)
-#     dep = scholar_api.extract_scholar_publications(authors)
+@app.command(help="List department publications")
+def list_new_department_publications(
+    n: int = 5,
+    sort_by_citations: bool = True,
+    add_authors: bool = False,
+    max_age: Optional[int] = None,
+    overwrite: bool = False,
+    cache_dir: str = config.DEFAULT_CACHE_DIR,
+    backend: api.APIBackend = api.APIBackend.SCRAPER,
+):
+    authors = cache.load_authors(cache_dir=cache_dir)
 
-#     publications = utils.load_json(publications_file(cache_dir))
-#     old_dep = department.Department(**publications)
+    old_authors = []
+    new_authors = []
+    for name, scholar_id in authors.items():
+        old_author = cache.load_author(scholar_id, cache_dir=cache_dir)
+        if old_author is not None:
+            old_authors.append(old_author)
 
-#     return dep, department.department_diff(dep, old_dep, fill=False, only_new=True)
+        new_author = api.search_author_with_publications(
+            name=name, scholar_id=scholar_id, full=False, backend=backend
+        )
+        if overwrite:
+            cache.save_author(author=new_author, cache_dir=cache_dir)
+        new_authors.append(new_author)
 
+    old_department = Department(authors=old_authors)
+    new_department = Department(authors=new_authors)
 
-# def extract_date(res):
-#     for key in ["published-online", "published"]:
-#         if key not in res:
-#             continue
-#         x = res[key]["date-parts"][0]
-#         while len(x) < 3:
-#             x.append(1)
-#         return "-".join(map(str, x))
+    new_pubs = department_diff(
+        new_department,
+        old_department,
+        fill=False,
+    )
 
-#     return "0-0-0"
-
-
-# def find_paper(papers, title):
-#     print("Try to find", title)
-#     for paper in papers:
-#         print(paper["title"])
-#         if paper["title"][0] == title:
-#             return paper
-
-#     raise ValueError(f"Could not find paper with title {title}")
-
-
-# def get_journal(res):
-#     if "container-title" in res:
-#         return res["container-title"][0]
-#     if "short-container-title" in res:
-#         return res["short-container-title"][0]
-#     return "Unknown"
-
-
-# @app.command(help="List new publications for the department")
-# def list_new_dep_publications(
-#     overwrite: bool = False,
-#     add_authors: bool = True,
-#     cache_dir: str = config.DEFAULT_CACHE_DIR,
-# ):
-#     dep, diff_dep = _get_new_dep(cache_dir)
-#     table = Table(title="New publications")
-#     table.add_column("Title", style="cyan")
-#     if add_authors:
-#         table.add_column("Authors", style="magenta")
-#     table.add_column("Journal", style="green")
-#     for title, pub in diff_dep.items():
-#         if add_authors:
-#             full_pub = pub.fill()
-#             table.add_row(title, full_pub.authors, pub.bib.citation)
-#         else:
-#             table.add_row(title, pub.bib.citation)
-
-#     console = Console()
-#     console.print(table)
-
-#     if overwrite:
-#         utils.dump_json(dep.dict(), publications_file(cache_dir))
+    print_publications(list(new_pubs.values()), sort_by_citations, add_authors, "department")
 
 
 # @app.command(help="Post new publications for the department to Slack")

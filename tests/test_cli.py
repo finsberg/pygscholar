@@ -200,7 +200,41 @@ def test_list_new_author_publications(tmpdir, backend):
     assert new_pub.title in result.stdout
 
 
-# def test_list_department_publications()
+@pytest.mark.parametrize("backend", ["scholarly", "scraper"])
+@pytest.mark.parametrize("add_authors", [False, True])
+def test_list_department_publications(tmpdir, backend, add_authors):
+    author1 = factory.AuthorFactory.build()
+    author2 = factory.AuthorFactory.build()
+
+    args1, backend = create_args(author1.info, backend, tmpdir)
+    args2, backend = create_args(author2.info, backend, tmpdir)
+
+    with mock_add_author(author1, backend):
+        runner.invoke(app, args1)
+    with mock_add_author(author2, backend):
+        runner.invoke(app, args2)
+
+    args = [
+        "list-department-publications",
+        "--cache-dir",
+        str(tmpdir),
+    ]
+    if add_authors:
+        args.append("--add-authors")
+
+    result = runner.invoke(app, args)
+    assert result.exit_code == 0
+
+    for pub in author1.publications + author2.publications:
+        assert pub.title[:10] in result.stdout
+        assert str(pub.year) in result.stdout
+        assert str(pub.num_citations) in result.stdout
+
+        if add_authors:
+            assert pub.authors[:10] in result.stdout
+        else:
+            assert pub.authors[:10] not in result.stdout
+
 
 # def test_list_dep_new_publications(tmpdir):
 #     old_author = factory.AuthorFactory.build()
