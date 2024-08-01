@@ -261,6 +261,7 @@ def list_new_author_publications(
     sort_by_citations: bool = True,
     add_authors: bool = False,
     cache_dir: str = config.DEFAULT_CACHE_DIR,
+    save_diff: Optional[Path] = None,
     backend: api.APIBackend = api.APIBackend.SCRAPER,
 ):
     authors = cache.load_authors(cache_dir=cache_dir)
@@ -293,6 +294,11 @@ def list_new_author_publications(
         cache.save_author(
             author=author,
             cache_dir=cache_dir,
+        )
+
+    if save_diff is not None:
+        save_diff.with_suffix(".json").write_text(
+            json.dumps([p.fill().dict() for p in new_publications], indent=4)
         )
 
 
