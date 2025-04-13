@@ -252,7 +252,7 @@ def get_author(
 def update_author_info(author: AuthorInfo, driver: Navigator) -> AuthorInfo:
     logger.info(f"Updating author info for {author.name}")
     info = extract_author_info(author.scholar_id, driver=driver)
-    kwargs = author.dict()
+    kwargs = author.model_dump()
     kwargs["data"] = info
     return AuthorInfo(**kwargs)
 
@@ -290,6 +290,6 @@ def fill_publication(publication: Publication, driver: Navigator | None = None) 
         driver = Navigator()
 
     pub = get_extra_article_info(publication.scholar_url, driver=driver)
-    kwargs = publication.dict()
+    kwargs = publication.model_dump()
     kwargs["extra"] = pub
     return to_publication(kwargs)
