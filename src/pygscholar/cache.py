@@ -39,7 +39,7 @@ def save_authors(authors: dict[str, str], cache_dir: str) -> None:
 def save_author(author: Author, cache_dir: Path | str = config.DEFAULT_CACHE_DIR) -> None:
     check_cache_dir_and_create(cache_dir)
 
-    (Path(cache_dir) / author.scholar_id).with_suffix(".json").write_text(author.json())
+    (Path(cache_dir) / author.scholar_id).with_suffix(".json").write_text(author.model_dump_json())
 
 
 def load_author(scholar_id: str, cache_dir: Path | str = config.DEFAULT_CACHE_DIR) -> Author | None:
