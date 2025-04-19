@@ -13,6 +13,7 @@ jobs:
     runs-on: ubuntu-22.04
     env:
       PUBLISH_DIR: ./_build/html
+      LOCAL_DBPATH: ./tests/local_db.json
 
 
     steps:
