@@ -176,8 +176,8 @@ def test_list_new_author_publications(tmpdir, backend):
     old_author = factory.AuthorFactory.build()
     new_pub = factory.PublicationFactory.build()
 
-    author_dict = old_author.dict()
-    author_dict["publications"] = (author_dict["publications"][0], new_pub.dict())
+    author_dict = old_author.model_dump()
+    author_dict["publications"] = (author_dict["publications"][0], new_pub.model_dump())
     new_author = pygscholar.Author(**author_dict)
 
     args, backend = create_args(old_author.info, backend, tmpdir)
@@ -242,12 +242,12 @@ def test_list_new_department_publications(tmpdir, backend):
     author2 = factory.AuthorFactory.build()
     new_pub = factory.PublicationFactory.build()
 
-    author_dict1 = author1.dict()
-    author_dict1["publications"] = (author_dict1["publications"][0], new_pub.dict())
+    author_dict1 = author1.model_dump()
+    author_dict1["publications"] = (author_dict1["publications"][0], new_pub.model_dump())
     new_author1 = pygscholar.Author(**author_dict1)
 
-    author_dict2 = author2.dict()
-    author_dict2["publications"] = (author_dict2["publications"][0], new_pub.dict())
+    author_dict2 = author2.model_dump()
+    author_dict2["publications"] = (author_dict2["publications"][0], new_pub.model_dump())
     new_author2 = pygscholar.Author(**author_dict2)
 
     args1, backend = create_args(author1.info, backend, tmpdir)

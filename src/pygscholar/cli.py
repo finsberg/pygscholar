@@ -367,6 +367,27 @@ def list_new_department_publications(
     print_publications(list(new_pubs.values()), sort_by_citations, add_authors, "department")
 
 
+@app.command(help="Generate test data")
+def generate_test_data(path: Path = Path("local_db.json")):
+    from pygscholar.api.local_db import LocalNavigator
+
+    db = Path(path)
+    driver = LocalNavigator(dbname=db)
+    driver.search_author("Henrik Finsberg")
+    driver.search_author("Dokken")
+    driver.populate_author("Henrik Nicolay Finsberg")
+    driver.populate_author("Jørgen Schartum Dokken")
+
+
+@app.command(help="Download test data")
+def download_test_data(path: Path):
+    link = "https://drive.google.com/uc?id=1BNGeS8OcMqK1ooKC1_b-pPhobn7ZZxVz&export=download"
+    import urllib.request
+
+    typer.echo(f"Downloading test data from {link} to {path}")
+    urllib.request.urlretrieve(link, path)
+
+
 # @app.command(help="Post new publications for the department to Slack")
 # def post_slack_new_dep_publications(
 #     channel: str,

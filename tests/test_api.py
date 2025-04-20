@@ -2,4 +2,4 @@ from pygscholar import api
 
 
 def test_search_author():
-    api.search_author("Henrik Finsberg")
+    api.search_author("Henrik Nicolay Finsberg")

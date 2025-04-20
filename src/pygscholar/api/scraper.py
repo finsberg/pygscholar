@@ -1,5 +1,6 @@
 from __future__ import annotations
 from typing import Any
+import os
 from concurrent.futures import ThreadPoolExecutor
 from structlog import get_logger
 from selectolax.lexbor import LexborHTMLParser, LexborNode
@@ -7,6 +8,7 @@ from scholarly._navigator import Navigator
 
 from ..author import AuthorInfo, Author
 from ..publication import Publication
+from .local_db import LocalNavigator
 
 
 logger = get_logger()
@@ -53,7 +55,11 @@ def get_extra_article_info(link: str | None, driver: Navigator | None = None) ->
     logger.debug(f"Getting extra info for {link}")
 
     if driver is None:
-        driver = Navigator()
+        driver = (
+            Navigator()
+            if not os.getenv("LOCAL_DBPATH")
+            else LocalNavigator(os.getenv("LOCAL_DBPATH"))
+        )
 
     if link is None:
         return {}
@@ -88,7 +94,11 @@ def process_article(
     driver: Navigator | None = None,
 ) -> dict[str, Any]:
     if driver is None:
-        driver = Navigator()
+        driver = (
+            Navigator()
+            if not os.getenv("LOCAL_DBPATH")
+            else LocalNavigator(os.getenv("LOCAL_DBPATH"))
+        )
 
     article_dict = {
         value: getattr(article.css_first(key), "text", lambda: None)()
@@ -111,7 +121,11 @@ def extract_all_articles(
 ) -> list[dict[str, Any]]:
     logger.debug(f"Extracting all articles for {scholar_id}")
     if driver is None:
-        driver = Navigator()
+        driver = (
+            Navigator()
+            if not os.getenv("LOCAL_DBPATH")
+            else LocalNavigator(os.getenv("LOCAL_DBPATH"))
+        )
     page_num = 0
     articles = []
     EOF = False
@@ -159,7 +173,11 @@ def extract_co_authors(parser: LexborHTMLParser) -> list[dict[str, str]]:
 def extract_author_info(scholar_id: str, driver: Navigator | None = None) -> dict[str, Any]:
     logger.debug("Extracting author info")
     if driver is None:
-        driver = Navigator()
+        driver = (
+            Navigator()
+            if not os.getenv("LOCAL_DBPATH")
+            else LocalNavigator(os.getenv("LOCAL_DBPATH"))
+        )
 
     page_source = driver._get_page(
         f"https://scholar.google.com/citations?user={scholar_id}&hl=en&gl=us&pagesize=100"
@@ -198,8 +216,11 @@ def extract_author_info(scholar_id: str, driver: Navigator | None = None) -> dic
 def search_author(name: str, driver: Navigator | None = None) -> list[AuthorInfo]:
     logger.info(f"Searching for author {name}")
     if driver is None:
-        driver = Navigator()
-
+        driver = (
+            Navigator()
+            if not os.getenv("LOCAL_DBPATH")
+            else LocalNavigator(os.getenv("LOCAL_DBPATH"))
+        )
     query = name.lower().replace(" ", "+")
 
     page_source = driver._get_page(
@@ -252,7 +273,7 @@ def get_author(
 def update_author_info(author: AuthorInfo, driver: Navigator) -> AuthorInfo:
     logger.info(f"Updating author info for {author.name}")
     info = extract_author_info(author.scholar_id, driver=driver)
-    kwargs = author.dict()
+    kwargs = author.model_dump()
     kwargs["data"] = info
     return AuthorInfo(**kwargs)
 
@@ -264,7 +285,11 @@ def search_author_with_publications(
     driver: Navigator | None = None,
 ) -> Author:
     if driver is None:
-        driver = Navigator()
+        driver = (
+            Navigator()
+            if not os.getenv("LOCAL_DBPATH")
+            else LocalNavigator(os.getenv("LOCAL_DBPATH"))
+        )
 
     author = get_author(name, scholar_id, driver=driver)
 
@@ -287,9 +312,13 @@ def search_author_with_publications(
 
 def fill_publication(publication: Publication, driver: Navigator | None = None) -> Publication:
     if driver is None:
-        driver = Navigator()
+        driver = (
+            Navigator()
+            if not os.getenv("LOCAL_DBPATH")
+            else LocalNavigator(os.getenv("LOCAL_DBPATH"))
+        )
 
     pub = get_extra_article_info(publication.scholar_url, driver=driver)
-    kwargs = publication.dict()
+    kwargs = publication.model_dump()
     kwargs["extra"] = pub
     return to_publication(kwargs)
