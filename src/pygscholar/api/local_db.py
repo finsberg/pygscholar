@@ -1,17 +1,22 @@
 from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
+import os
 import json
 from scholarly._navigator import Navigator
 from selectolax.lexbor import LexborHTMLParser
 
 
 @dataclass
-class LocalNavigator(Navigator):
-    dbname: Path
+class LocalNavigator:
+    _dbname: Path | str | None
 
     def __post_init__(self):
-        self.dbname = Path(self.dbname)
+        if self._dbname is None:
+            self._dbname = Path(os.getenv("LOCAL_DBPATH"))
+            assert self._dbname is not None, "LOCAL_DBPATH must be set"
+
+        self.dbname = Path(self._dbname)
 
         if not self.dbname.is_file():
             self._db = {}

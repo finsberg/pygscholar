@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Any
+from typing import Any, Protocol
 import os
 from concurrent.futures import ThreadPoolExecutor
 from structlog import get_logger
@@ -12,6 +12,10 @@ from .local_db import LocalNavigator
 
 
 logger = get_logger()
+
+
+class NavigatorType(Protocol):
+    def _get_page(self, link: str) -> str: ...
 
 
 def to_publication(item: dict[str, Any]) -> Publication:
@@ -51,7 +55,7 @@ def to_publication(item: dict[str, Any]) -> Publication:
     return Publication(**{k: v for k, v in kwargs.items() if v is not None})
 
 
-def get_extra_article_info(link: str | None, driver: Navigator | None = None) -> dict[str, Any]:
+def get_extra_article_info(link: str | None, driver: NavigatorType | None = None) -> dict[str, Any]:
     logger.debug(f"Getting extra info for {link}")
 
     if driver is None:
@@ -91,7 +95,7 @@ _publication_fields = {
 def process_article(
     article: LexborNode,
     full: bool = True,
-    driver: Navigator | None = None,
+    driver: NavigatorType | None = None,
 ) -> dict[str, Any]:
     if driver is None:
         driver = (
@@ -117,7 +121,7 @@ def process_article(
 
 
 def extract_all_articles(
-    scholar_id: str, full: bool = True, driver: Navigator | None = None
+    scholar_id: str, full: bool = True, driver: NavigatorType | None = None
 ) -> list[dict[str, Any]]:
     logger.debug(f"Extracting all articles for {scholar_id}")
     if driver is None:
@@ -170,7 +174,7 @@ def extract_co_authors(parser: LexborHTMLParser) -> list[dict[str, str]]:
     return co_authors
 
 
-def extract_author_info(scholar_id: str, driver: Navigator | None = None) -> dict[str, Any]:
+def extract_author_info(scholar_id: str, driver: NavigatorType | None = None) -> dict[str, Any]:
     logger.debug("Extracting author info")
     if driver is None:
         driver = (
@@ -213,7 +217,7 @@ def extract_author_info(scholar_id: str, driver: Navigator | None = None) -> dic
     return info
 
 
-def search_author(name: str, driver: Navigator | None = None) -> list[AuthorInfo]:
+def search_author(name: str, driver: NavigatorType | None = None) -> list[AuthorInfo]:
     logger.info(f"Searching for author {name}")
     if driver is None:
         driver = (
@@ -253,7 +257,7 @@ def search_author(name: str, driver: Navigator | None = None) -> list[AuthorInfo
 
 
 def get_author(
-    name: str, scholar_id: str = "", driver: Navigator | None = None
+    name: str, scholar_id: str = "", driver: NavigatorType | None = None
 ) -> AuthorInfo | None:
     logger.info(f"Get author info for {name}")
     authors = search_author(name, driver=driver)
@@ -282,7 +286,7 @@ def search_author_with_publications(
     name: str,
     scholar_id: str = "",
     full: bool = False,
-    driver: Navigator | None = None,
+    driver: NavigatorType | None = None,
 ) -> Author:
     if driver is None:
         driver = (
@@ -310,7 +314,7 @@ def search_author_with_publications(
     return Author(info=info, publications=publications)
 
 
-def fill_publication(publication: Publication, driver: Navigator | None = None) -> Publication:
+def fill_publication(publication: Publication, driver: NavigatorType | None = None) -> Publication:
     if driver is None:
         driver = (
             Navigator()
