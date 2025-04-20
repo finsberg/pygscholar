@@ -368,11 +368,10 @@ def list_new_department_publications(
 
 
 @app.command(help="Generate test data")
-def generate_test_data(path: Path = Path("local_db.json")):
+def generate_test_data(path: Path):
     from pygscholar.api.local_db import LocalNavigator
 
-    db = Path(path)
-    driver = LocalNavigator(dbname=db)
+    driver = LocalNavigator(Path(path))
     driver.search_author("Henrik Finsberg")
     driver.search_author("Dokken")
     driver.populate_author("Henrik Nicolay Finsberg")
@@ -381,7 +380,7 @@ def generate_test_data(path: Path = Path("local_db.json")):
 
 @app.command(help="Download test data")
 def download_test_data(path: Path):
-    link = "https://drive.google.com/uc?id=1BNGeS8OcMqK1ooKC1_b-pPhobn7ZZxVz&export=download"
+    link = "https://drive.google.com/uc?id=14VERTNNbU8l-24SDJKkGZqXuHvALtDfI&export=download"
     import urllib.request
 
     typer.echo(f"Downloading test data from {link} to {path}")

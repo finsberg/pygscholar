@@ -23,7 +23,7 @@ jobs:
         python -m pip install -e ".[test]"
 
     - name: Download test data
-      run: scholar  download-test-data ${{ env.LOCAL_DBPATH }}
+      run: scholar download-test-data ${{ env.LOCAL_DBPATH }}
 
     - name: Test with pytest
       run: |

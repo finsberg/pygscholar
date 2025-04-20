@@ -17,14 +17,12 @@ class LocalNavigator:
             assert self._dbname is not None, "LOCAL_DBPATH must be set"
 
         self.dbname = Path(self._dbname)
-
         if not self.dbname.is_file():
             self._db = {}
         else:
             self._db = json.loads(self.dbname.read_text())
 
     def _get_page(self, link: str):
-        # breakpoint()
         return self._db.get(link, None)
 
     def insert_page(self, link: str, page_source: str):
