@@ -6,6 +6,8 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
+    env:
+      LOCAL_DBPATH: ./tests/local_db.json
     strategy:
       matrix:
         python-version: ["3.9", "3.10", "3.11", "3.12"]
@@ -19,6 +21,10 @@ jobs:
     - name: Install pyscholar
       run: |
         python -m pip install -e ".[test]"
+
+    - name: Download test data
+      run: scholar download-test-data ${{ env.LOCAL_DBPATH }}
+
     - name: Test with pytest
       run: |
         python -m pytest
