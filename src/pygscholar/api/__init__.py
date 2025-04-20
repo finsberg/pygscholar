@@ -9,8 +9,9 @@ from ..publication import Publication
 from ..author import AuthorInfo, Author
 from . import scholarly
 from . import scraper
+from .local_db import LocalNavigator
 
-__all__ = ["search_author"]
+__all__ = ["search_author", "LocalNavigator"]
 
 
 def get_closest_name(name: str, names: Iterable[str]):
