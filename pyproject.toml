@@ -27,6 +27,7 @@ dependencies = [
     "structlog",
     "typer",
     "selectolax",
+    "click<8.2.0"
 ]
 
 [project.readme]
