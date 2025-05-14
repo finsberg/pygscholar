@@ -35,16 +35,25 @@ class LocalNavigator:
 
         print(f"Searching for author {name}")
         query = name.lower().replace(" ", "+")
-        link = f"https://scholar.google.com/citations?view_op=search_authors&hl=en&mauthors={query}"
+        link = f"https://scholar.google.com/scholar?hl=en&as_sdt=0%2C5&q={query}"
+        # link = f"https://scholar.google.com/citations?view_op=search_authors&hl=en&mauthors={query}"
         print(f"Fetching {link}")
         page_source = driver._get_page(link)
         self.insert_page(link, page_source)
+        # scholar_id = (
+        #     LexborHTMLParser(page_source)
+        #     .css(".gs_ai_t")[0]
+        #     .css_first(".gs_ai_name")
+        #     .child.attrs["href"]
+        #     .split("&user=")[-1]
+        # )
+
         scholar_id = (
             LexborHTMLParser(page_source)
-            .css(".gs_ai_t")[0]
-            .css_first(".gs_ai_name")
+            .css(".gs_rt2")[0]
             .child.attrs["href"]
-            .split("&user=")[-1]
+            .split("?user=")[-1]
+            .split("&")[0]
         )
         return scholar_id
 
