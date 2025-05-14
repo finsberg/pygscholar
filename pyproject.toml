@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pygscholar"
-version = "0.1.4"
+version = "0.2.0"
 description = "Tool for interacting with google scholar"
 authors = [{name = "Henrik Finsberg", email = "henriknf@simula.no"}]
 license = {text = "MIT"}
@@ -27,6 +27,7 @@ dependencies = [
     "structlog",
     "typer",
     "selectolax",
+    "click<8.2.0"
 ]
 
 [project.readme]
@@ -142,7 +143,7 @@ tag = true
 sign_tags = false
 tag_name = "v{new_version}"
 tag_message = "Bump version: {current_version} → {new_version}"
-current_version = "0.1.4"
+current_version = "0.2.0"
 
 
 [[tool.bumpversion.files]]

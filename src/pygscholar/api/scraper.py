@@ -228,10 +228,52 @@ def search_author(name: str, driver: NavigatorType | None = None) -> list[Author
     query = name.lower().replace(" ", "+")
 
     page_source = driver._get_page(
-        f"https://scholar.google.com/citations?view_op=search_authors&hl=en&mauthors={query}"
+        f"https://scholar.google.com/scholar?hl=en&as_sdt=0%2C5&q={query}"
     )
 
     parser = LexborHTMLParser(page_source)
+
+    authors = []
+    for author in parser.css(".gs_rt2"):
+        name = author.child.text()
+        link = author.child.attrs["href"]
+        scholar_id = link.split("?user=")[-1].split("&")[0]
+        email = ""
+        cited_by = "0"
+        affiliation = ""
+
+        authors.append(
+            AuthorInfo(
+                name=name,
+                link=link,
+                scholar_id=scholar_id,
+                affiliation=affiliation,
+                email=email,
+                cited_by=cited_by.lstrip("Cited by "),
+            )
+        )
+    logger.debug(f"Found {len(authors)} author(s)")
+
+    return authors
+
+
+# This function does not work anymore because Google Scholar now requires
+# users to be logged in to see the author search results.
+def search_author_orig(name: str, driver: NavigatorType | None = None) -> list[AuthorInfo]:
+    logger.info(f"Searching for author {name}")
+    if driver is None:
+        driver = (
+            Navigator()
+            if not os.getenv("LOCAL_DBPATH")
+            else LocalNavigator(os.getenv("LOCAL_DBPATH"))
+        )
+    query = name.lower().replace(" ", "+")
+
+    page_source = driver._get_page(
+        f"https://scholar.google.com/citations?view_op=search_authors&hl=en&mauthors={query}"
+    )
+    parser = LexborHTMLParser(page_source)
+
     authors = []
     for author in parser.css(".gs_ai_t"):
         name = author.css_first(".gs_ai_name").text()
@@ -309,6 +351,7 @@ def search_author_with_publications(
             ),
         )
     )
+
     info = update_author_info(author, driver=driver)
 
     return Author(info=info, publications=publications)
