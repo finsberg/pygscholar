@@ -236,7 +236,7 @@ def search_author(name: str, driver: NavigatorType | None = None) -> list[Author
     authors = []
     for author in parser.css(".gs_rt2"):
         name = author.child.text()
-        link = list(author.child.attrs.values())[0]
+        link = author.child.attrs["href"]
         scholar_id = link.split("?user=")[-1].split("&")[0]
         email = ""
         cited_by = "0"
