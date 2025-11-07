@@ -46,7 +46,7 @@ dev = [
 ]
 docs = [
     "ipython<8.7.0",
-    "jupyter-book",
+    "jupyter-book<2.0",
 ]
 slack = ["slack-sdk"]
 test = [
