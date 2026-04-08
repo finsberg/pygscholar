@@ -380,7 +380,8 @@ def generate_test_data(path: Path):
 
 @app.command(help="Download test data")
 def download_test_data(path: Path):
-    link = "https://drive.google.com/uc?id=1cdT3l7dnI8HZ59mv1R0ibNkO7sbos8Zh&export=download"
+    file_id = "1bX2TL41jcseXvfrMOmwAjBsW9BJ8J5bB"
+    link = f"https://drive.usercontent.google.com/download?id={file_id}&confirm=xxx"
     import urllib.request
 
     typer.echo(f"Downloading test data from {link} to {path}")
