@@ -7,7 +7,7 @@ import pytest
 from pygscholar.cli import app
 from typer.testing import CliRunner
 
-runner = CliRunner(mix_stderr=False)
+runner = CliRunner()
 
 
 @contextlib.contextmanager
