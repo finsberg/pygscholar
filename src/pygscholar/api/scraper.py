@@ -18,6 +18,17 @@ class NavigatorType(Protocol):
     def _get_page(self, link: str) -> str: ...
 
 
+def get_driver(driver: NavigatorType | None = None) -> NavigatorType:
+    """Use the recorded pages in LOCAL_DBPATH if it is set, otherwise go online."""
+    if driver is not None:
+        return driver
+
+    local_db_path = os.getenv("LOCAL_DBPATH")
+    if local_db_path:
+        return LocalNavigator(local_db_path)
+    return Navigator()
+
+
 def to_publication(item: dict[str, Any]) -> Publication:
     # First get the basic information
     kwargs = {
@@ -58,12 +69,7 @@ def to_publication(item: dict[str, Any]) -> Publication:
 def get_extra_article_info(link: str | None, driver: NavigatorType | None = None) -> dict[str, Any]:
     logger.debug(f"Getting extra info for {link}")
 
-    if driver is None:
-        driver = (
-            Navigator()
-            if not os.getenv("LOCAL_DBPATH")
-            else LocalNavigator(os.getenv("LOCAL_DBPATH"))
-        )
+    driver = get_driver(driver)
 
     if link is None:
         return {}
@@ -97,12 +103,7 @@ def process_article(
     full: bool = True,
     driver: NavigatorType | None = None,
 ) -> dict[str, Any]:
-    if driver is None:
-        driver = (
-            Navigator()
-            if not os.getenv("LOCAL_DBPATH")
-            else LocalNavigator(os.getenv("LOCAL_DBPATH"))
-        )
+    driver = get_driver(driver)
 
     article_dict = {
         value: getattr(article.css_first(key), "text", lambda: None)()
@@ -124,12 +125,7 @@ def extract_all_articles(
     scholar_id: str, full: bool = True, driver: NavigatorType | None = None
 ) -> list[dict[str, Any]]:
     logger.debug(f"Extracting all articles for {scholar_id}")
-    if driver is None:
-        driver = (
-            Navigator()
-            if not os.getenv("LOCAL_DBPATH")
-            else LocalNavigator(os.getenv("LOCAL_DBPATH"))
-        )
+    driver = get_driver(driver)
     page_num = 0
     articles = []
     EOF = False
@@ -145,7 +141,7 @@ def extract_all_articles(
             results = []
             with ThreadPoolExecutor() as executor:
                 for article in parser.css(".gsc_a_tr"):
-                    results.append(executor.submit(process_article, article, full))
+                    results.append(executor.submit(process_article, article, full, driver))
 
             for result in results:
                 articles.append(result.result())
@@ -158,6 +154,11 @@ def extract_all_articles(
         else:
             page_num += 100  # paginate to the next page
     return articles
+
+
+def _text(parser: LexborHTMLParser, selector: str, default: str = "") -> str:
+    node = parser.css_first(selector)
+    return node.text() if node is not None else default
 
 
 def extract_co_authors(parser: LexborHTMLParser) -> list[dict[str, str]]:
@@ -176,12 +177,7 @@ def extract_co_authors(parser: LexborHTMLParser) -> list[dict[str, str]]:
 
 def extract_author_info(scholar_id: str, driver: NavigatorType | None = None) -> dict[str, Any]:
     logger.debug("Extracting author info")
-    if driver is None:
-        driver = (
-            Navigator()
-            if not os.getenv("LOCAL_DBPATH")
-            else LocalNavigator(os.getenv("LOCAL_DBPATH"))
-        )
+    driver = get_driver(driver)
 
     page_source = driver._get_page(
         f"https://scholar.google.com/citations?user={scholar_id}&hl=en&gl=us&pagesize=100"
@@ -193,23 +189,35 @@ def extract_author_info(scholar_id: str, driver: NavigatorType | None = None) ->
         "co-authors": [],
     }
 
-    info["info"]["name"] = parser.css_first("#gsc_prf_in").text()
-    info["info"]["affiliations"] = parser.css_first(".gsc_prf_ila").text()
-    info["info"]["email"] = parser.css_first("#gsc_prf_ivh").text()
+    name = _text(parser, "#gsc_prf_in")
+    if name == "":
+        # Most likely a captcha, a sign in page or an invalid scholar id
+        raise RuntimeError(
+            f"The page for scholar id '{scholar_id}' does not look like an author profile",
+        )
+
+    info["info"]["name"] = name
+    info["info"]["affiliations"] = _text(parser, ".gsc_prf_ila")
+    info["info"]["email"] = _text(parser, "#gsc_prf_ivh")
     info["info"]["interests"] = [interest.text() for interest in parser.css("#gsc_prf_int .gs_ibl")]
 
+    # Authors without any citations yet have an empty statistics table
     citations = [int(c.text()) for c in parser.css(".gsc_rsb_std")]
+
+    def stat(index: int) -> int:
+        return citations[index] if index < len(citations) else 0
+
     info["info"]["citations"] = {
-        "all": citations[0],
-        "last_5_years": citations[1],
+        "all": stat(0),
+        "last_5_years": stat(1),
     }
     info["info"]["h_index"] = {
-        "all": citations[2],
-        "last_5_years": citations[3],
+        "all": stat(2),
+        "last_5_years": stat(3),
     }
     info["info"]["i10_index"] = {
-        "all": citations[4],
-        "last_5_years": citations[5],
+        "all": stat(4),
+        "last_5_years": stat(5),
     }
 
     info["co-authors"] = extract_co_authors(parser)
@@ -217,56 +225,76 @@ def extract_author_info(scholar_id: str, driver: NavigatorType | None = None) ->
     return info
 
 
-def search_author(name: str, driver: NavigatorType | None = None) -> list[AuthorInfo]:
-    logger.info(f"Searching for author {name}")
-    if driver is None:
-        driver = (
-            Navigator()
-            if not os.getenv("LOCAL_DBPATH")
-            else LocalNavigator(os.getenv("LOCAL_DBPATH"))
-        )
-    query = name.lower().replace(" ", "+")
+def name_variants(name: str) -> list[str]:
+    """Query variants to look for, in decreasing order of precision.
 
-    page_source = driver._get_page(
-        f"https://scholar.google.com/scholar?hl=en&as_sdt=0%2C5&q={query}"
-    )
+    Google only shows the user profile panel for some queries. A full name such
+    as "Henrik Nicolay Finsberg" gives no panel at all, while "Henrik Finsberg"
+    does, so fall back to the first and the last name.
+    """
+    variants = [name]
+    parts = name.split()
+    if len(parts) > 2:
+        variants.append(f"{parts[0]} {parts[-1]}")
+    return variants
 
-    parser = LexborHTMLParser(page_source)
 
+def parse_author_panel(parser: LexborHTMLParser) -> list[AuthorInfo]:
+    """Parse the 'User profiles' panel of a search result page."""
     authors = []
     for author in parser.css(".gs_rt2"):
-        name = author.child.text()
-        link = author.child.attrs["href"]
-        scholar_id = link.split("?user=")[-1].split("&")[0]
-        email = ""
-        cited_by = "0"
-        affiliation = ""
+        anchor = author.css_first("a")
+        if anchor is None:
+            continue
+        link = anchor.attrs.get("href", "")
+
+        # The same cell holds affiliation, verified email and citation count
+        details = [d.text() for d in author.parent.css("div")] if author.parent else []
+        email = next((d for d in details if "email" in d.lower()), "")
+        cited_by = next((d for d in details if d.lower().startswith("cited by")), "")
+        affiliation = next((d for d in details if d not in (email, cited_by)), "")
 
         authors.append(
             AuthorInfo(
-                name=name,
+                name=anchor.text(),
                 link=link,
-                scholar_id=scholar_id,
+                scholar_id=link.split("?user=")[-1].split("&")[0],
                 affiliation=affiliation,
                 email=email,
-                cited_by=cited_by.lstrip("Cited by "),
+                cited_by=cited_by.lower().replace("cited by", "").replace(",", "").strip() or 0,
             )
         )
-    logger.debug(f"Found {len(authors)} author(s)")
-
     return authors
+
+
+def search_author(name: str, driver: NavigatorType | None = None) -> list[AuthorInfo]:
+    logger.info(f"Searching for author {name}")
+    driver = get_driver(driver)
+
+    for variant in name_variants(name):
+        query = variant.lower().replace(" ", "+")
+        page_source = driver._get_page(
+            f"https://scholar.google.com/scholar?hl=en&as_sdt=0%2C5&q={query}"
+        )
+        if not page_source:
+            continue
+
+        authors = parse_author_panel(LexborHTMLParser(page_source))
+        if authors:
+            if variant != name:
+                logger.debug(f"Found no profiles for '{name}', used '{variant}' instead")
+            logger.debug(f"Found {len(authors)} author(s)")
+            return authors
+
+    logger.debug("Found 0 author(s)")
+    return []
 
 
 # This function does not work anymore because Google Scholar now requires
 # users to be logged in to see the author search results.
 def search_author_orig(name: str, driver: NavigatorType | None = None) -> list[AuthorInfo]:
     logger.info(f"Searching for author {name}")
-    if driver is None:
-        driver = (
-            Navigator()
-            if not os.getenv("LOCAL_DBPATH")
-            else LocalNavigator(os.getenv("LOCAL_DBPATH"))
-        )
+    driver = get_driver(driver)
     query = name.lower().replace(" ", "+")
 
     page_source = driver._get_page(
@@ -324,46 +352,59 @@ def update_author_info(author: AuthorInfo, driver: Navigator) -> AuthorInfo:
     return AuthorInfo(**kwargs)
 
 
+def author_info_from_id(scholar_id: str, driver: NavigatorType | None = None) -> AuthorInfo:
+    """Build the author info from the profile page alone.
+
+    Searching for an author is unreliable (see `search_author`), so whenever we
+    already know the scholar id we skip the search entirely.
+    """
+    logger.info(f"Get author info for scholar id {scholar_id}")
+    info = extract_author_info(scholar_id, driver=get_driver(driver))
+
+    return AuthorInfo(
+        name=info["info"]["name"],
+        scholar_id=scholar_id,
+        link=f"https://scholar.google.com/citations?user={scholar_id}&hl=en",
+        affiliation=info["info"]["affiliations"],
+        email=info["info"]["email"],
+        cited_by=info["info"]["citations"]["all"],
+        data=info,
+    )
+
+
 def search_author_with_publications(
     name: str,
     scholar_id: str = "",
     full: bool = False,
     driver: NavigatorType | None = None,
 ) -> Author:
-    if driver is None:
-        driver = (
-            Navigator()
-            if not os.getenv("LOCAL_DBPATH")
-            else LocalNavigator(os.getenv("LOCAL_DBPATH"))
-        )
+    driver = get_driver(driver)
 
-    author = get_author(name, scholar_id, driver=driver)
+    if scholar_id != "":
+        info = author_info_from_id(scholar_id, driver=driver)
+    else:
+        author = get_author(name, driver=driver)
 
-    if author is None:
-        raise RuntimeError(f"Could not find author '{name}' with id '{scholar_id}'")
+        if author is None:
+            raise RuntimeError(f"Could not find author '{name}' with id '{scholar_id}'")
+
+        info = update_author_info(author, driver=driver)
 
     publications = list(
         map(
             to_publication,
             filter(
                 lambda x: x["title"] is not None,
-                extract_all_articles(author.scholar_id, full=full, driver=driver),
+                extract_all_articles(info.scholar_id, full=full, driver=driver),
             ),
         )
     )
-
-    info = update_author_info(author, driver=driver)
 
     return Author(info=info, publications=publications)
 
 
 def fill_publication(publication: Publication, driver: NavigatorType | None = None) -> Publication:
-    if driver is None:
-        driver = (
-            Navigator()
-            if not os.getenv("LOCAL_DBPATH")
-            else LocalNavigator(os.getenv("LOCAL_DBPATH"))
-        )
+    driver = get_driver(driver)
 
     pub = get_extra_article_info(publication.scholar_url, driver=driver)
     kwargs = publication.model_dump()

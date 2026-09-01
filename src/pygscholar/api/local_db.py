@@ -5,6 +5,10 @@ import os
 import json
 from scholarly._navigator import Navigator
 from selectolax.lexbor import LexborHTMLParser
+from structlog import get_logger
+
+
+logger = get_logger()
 
 
 @dataclass
@@ -13,8 +17,9 @@ class LocalNavigator:
 
     def __post_init__(self):
         if self._dbname is None:
-            self._dbname = Path(os.getenv("LOCAL_DBPATH"))
-            assert self._dbname is not None, "LOCAL_DBPATH must be set"
+            self._dbname = os.getenv("LOCAL_DBPATH")
+            if self._dbname is None:
+                raise ValueError("LOCAL_DBPATH must be set when no database is provided")
 
         self.dbname = Path(self._dbname)
         if not self.dbname.is_file():
@@ -22,8 +27,11 @@ class LocalNavigator:
         else:
             self._db = json.loads(self.dbname.read_text())
 
-    def _get_page(self, link: str):
-        return self._db.get(link, None)
+    def _get_page(self, link: str) -> str:
+        if link not in self._db:
+            logger.warning(f"No recorded page for {link} in {self.dbname}")
+            return ""
+        return self._db[link]
 
     def insert_page(self, link: str, page_source: str):
         self._db[link] = page_source

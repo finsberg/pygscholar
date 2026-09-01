@@ -65,12 +65,19 @@ def get_author(name: str, scholar_id: str = "") -> AuthorInfo | None:
 
 
 def search_author_with_publications(name: str, scholar_id: str = "", full: bool = True) -> Author:
-    author = get_author(name, scholar_id)
+    if scholar_id != "":
+        # Searching for an author by name is unreliable, so look up the profile
+        # directly whenever we know the scholar id
+        author_data = scholarly.search_author_id(scholar_id, filled=True)
+        author = to_author_info(author_data)
+    else:
+        found = get_author(name, scholar_id)
 
-    if author is None:
-        raise RuntimeError(f"Could not find author '{name}' with id '{scholar_id}'")
+        if found is None:
+            raise RuntimeError(f"Could not find author '{name}' with id '{scholar_id}'")
 
-    author_data = scholarly.fill(author.data)
+        author = found
+        author_data = scholarly.fill(author.data)
 
     results = []
     with ThreadPoolExecutor() as executor:
