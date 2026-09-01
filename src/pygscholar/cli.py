@@ -156,18 +156,19 @@ def add_author(
             )
             raise typer.Exit(101)
 
-    authors[name] = scholar_id
-    cache.save_authors(authors, cache_dir)
-
-    typer.echo(
-        f"Successfully added author with name {name} and scholar id {scholar_id}",
-    )
-
     typer.echo("Search for publications. This can take some time")
     author_with_pubs = api.search_author_with_publications(
         name=name, scholar_id=author.scholar_id, full=False, backend=backend
     )
+
+    # Only record the author once we know we can fetch the publications
+    authors[name] = scholar_id
+    cache.save_authors(authors, cache_dir)
     cache.save_author(author=author_with_pubs, cache_dir=cache_dir)
+
+    typer.echo(
+        f"Successfully added author with name {name} and scholar id {scholar_id}",
+    )
 
 
 @app.command(help="Remove author")
@@ -298,7 +299,7 @@ def list_new_author_publications(
 
     if save_diff is not None:
         save_diff.with_suffix(".json").write_text(
-            json.dumps([p.fill().dict() for p in new_publications], indent=4)
+            json.dumps([p.fill().model_dump() for p in new_publications], indent=4)
         )
 
 

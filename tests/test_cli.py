@@ -7,7 +7,12 @@ import pytest
 from pygscholar.cli import app
 from typer.testing import CliRunner
 
-runner = CliRunner()
+try:
+    # click < 8.2 merges stderr into stdout unless asked not to
+    runner = CliRunner(mix_stderr=False)
+except TypeError:
+    # click >= 8.2 always keeps them separate and dropped the argument
+    runner = CliRunner()
 
 
 @contextlib.contextmanager
