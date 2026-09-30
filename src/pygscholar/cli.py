@@ -381,8 +381,8 @@ def generate_test_data(path: Path):
 
 @app.command(help="Download test data")
 def download_test_data(path: Path):
-    file_id = "1bX2TL41jcseXvfrMOmwAjBsW9BJ8J5bB"
-    link = f"https://drive.usercontent.google.com/download?id={file_id}&confirm=xxx"
+    # Stored as an asset on the 'test-data' release in the GitHub repo
+    link = "https://github.com/finsberg/pygscholar/releases/download/test-data/local_db.json"
     import urllib.request
 
     typer.echo(f"Downloading test data from {link} to {path}")
