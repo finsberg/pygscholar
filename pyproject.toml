@@ -24,6 +24,7 @@ dependencies = [
     "pydantic",
     "rich",
     "scholarly",
+    "bibtexparser<2",  # scholarly uses the bibtexparser v1 API
     "structlog",
     "typer",
     "selectolax",
